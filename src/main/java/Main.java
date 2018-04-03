@@ -14,12 +14,13 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) throws MaltChainedException, IOException, URISyntaxException, MyStemApplicationException, TreeTaggerException {
-        String text = "Самарская область является часть России.";
+        String text = "Самарская область является частью России.";
 
-        TextService textService = new TextService(text);
+        //TextService textService = new TextService(text);
 
-        //Texterra texterra = new Texterra();
-        //List<NamedAnnotationEntity> entity = texterra.getNamedAnnotationEntities("Пошли гулять по Москве.");
+        Texterra texterra = new Texterra();
+        List<NamedAnnotationEntity> entity = texterra.getNamedAnnotationEntities("Пошли гулять по Москве.");
+        int k = text.length();
         /*String s = "1\tГо\tго\tM\tM\tMo---d\t0\tROOT\t_\t_\n2\tбухать\tбухать\tV\tV\tVmn----a-e\t1\tпредик\t_\t_\n";
         String[] ss = s.split("\n");
         List<SyntaxWordInfo> words = new ArrayList<>();
@@ -34,7 +35,7 @@ public class Main {
         /*List<Info> res = textService.parse("привет мама");
         System.out.println(new Gson().toJson(new nlp.words.MorphWordInfo(res.get(0).rawResponse())));*/
         // List<String> sentenceList = textService.getAllSentences();
-        textService.syntaxParsingSentence(0);
+        //textService.syntaxParsingSentence(0);
         //textService.syntaxParsingSentence(sentenceList.get(0));
         /*for (String sentence : sentenceList) {
             System.out.println();

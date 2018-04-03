@@ -2,26 +2,30 @@ package texterra;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import texterra.rest.TextRequest;
 import texterra.rest.TexterraApi;
 import retrofit2.*;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Texterra {
     private TexterraApi texterraApi = null;
+    private Gson parser = null;
 
     public Texterra() {
-        Gson gson = new GsonBuilder().create();
+        parser = new GsonBuilder().create();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://localhost:8082/texterra/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         texterraApi = retrofit.create(TexterraApi.class);
     }
@@ -31,11 +35,11 @@ public class Texterra {
     }
 
     public List<NamedAnnotationEntity> getNamedAnnotationEntities(List<String> texts) throws IOException {
-        //String bodyJson = new Gson().toJson(getRequestList(texts));
-        //RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), bodyJson);
-        Call<List<NamedAnnotationEntity>> call = texterraApi.getFromNLP(getRequestList(texts));
-        Response<List<NamedAnnotationEntity>> response = call.execute();
-        return response.body();
+        String bodyJson = parser.toJson(getRequestList(texts));
+        RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), bodyJson);
+        Call<ResponseBody> call = texterraApi.getFromNLP("named-entity", body);
+        retrofit2.Response<ResponseBody> response = call.execute();
+        return parser.fromJson(CharStreams.toString(response.body().charStream()), ArrayList.class);
     }
 
     private List<TextRequest> getRequestList(List<String> texts) {
