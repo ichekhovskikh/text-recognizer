@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>text-recognizer</groupId>
+    <artifactId>text-recognizer</artifactId>
+    <version>0.1-ALPHA</version>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories><!--
+        <repository>
+            <id>Textocat Artifactory</id>
+            <name>Textocat Artifactory-releases</name>
+            <url>http://corp.textocat.com/artifactory/oss-libs-releases-local</url>
+        </repository>
+        <repository>
+            <id>aif.com</id>
+            <url>http://artifactory.aif.io/artifactory/libs-release-local</url>
+        </repository>-->
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>23.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>retrofit</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>converter-gson</artifactId>
+            <version>2.0.0-beta3</version>
+        </dependency>
+
+
+        <!--
+        <dependency>
+            <groupId>io.aif.pipeline</groupId>
+                    <artifactId>pipeline</artifactId>
+                    <version>LATEST</version>
+        </dependency>-->
+        <!--Morpho-->
+        <!--обертка mystem https://nlpub.ru/Mystem#Java-->
+        <dependency>
+            <groupId>ru.stachek66.nlp</groupId>
+            <artifactId>mystem-scala</artifactId>
+            <version>0.1.4</version>
+        </dependency>
+
+        <!--TreeTagger-->
+        <dependency>
+            <groupId>org.annolab.tt4j</groupId>
+            <artifactId>org.annolab.tt4j</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+
+        <!--sintax часть речи https://nlpub.ru/MaltParser-->
+        <dependency>
+            <groupId>org.maltparser</groupId>
+            <artifactId>maltparser</artifactId>
+            <version>1.9.2</version>
+        </dependency>
+
+
+
+        <!--<dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>3.9.1</version>
+        </dependency>-->
+
+    </dependencies>
+
+</project>
