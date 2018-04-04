@@ -1,8 +1,8 @@
 package nlp.analyzers;
 
 import nlp.NlpSentence;
-import nlp.words.MorphWordInfo;
-import nlp.words.SyntaxWordInfo;
+import nlp.words.MorphWord;
+import nlp.words.SyntaxWord;
 import org.maltparser.concurrent.ConcurrentMaltParserModel;
 import org.maltparser.concurrent.ConcurrentMaltParserService;
 import org.maltparser.concurrent.graph.ConcurrentDependencyGraph;
@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWordInfo> {
+public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWord> {
     private ConcurrentMaltParserModel maltParser = null;
     private TreeTaggerMorphAnalyzer tagger = null;
 
@@ -27,12 +27,12 @@ public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWordInfo> {
         maltParser = ConcurrentMaltParserService.initializeParserModel(mcoFile);
     }
 
-    public List<SyntaxWordInfo> parse(NlpSentence sentence) throws NlpParseException {
-        String[] tokens = sentence.getTokens();
-        List<MorphWordInfo> infoList = tagger.parse(sentence);
-        String[] coNLLX = new String[tokens.length];
-        for (int i = 0; i < tokens.length; i++) {
-            coNLLX[i] = buildCoNLLX(i, tokens[i], infoList.get(i).getInitial(),
+    public List<SyntaxWord> parse(NlpSentence sentence) throws NlpParseException {
+        List<String> tokens = sentence.getTokens();
+        List<MorphWord> infoList = tagger.parse(sentence);
+        String[] coNLLX = new String[tokens.size()];
+        for (int i = 0; i < tokens.size(); i++) {
+            coNLLX[i] = buildCoNLLX(i, tokens.get(i), infoList.get(i).getInitial(),
                     infoList.get(i).getTag(), infoList.get(i).getFeats());
         }
         ConcurrentDependencyGraph graph = null;
@@ -48,7 +48,7 @@ public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWordInfo> {
         return String.format("%d\t%s\t%s\t%s\t%s\t%s\t_\t_", lineNum + 1, word, initial, tag, tag, feats);
     }
 
-    private List<SyntaxWordInfo> toSyntaxWordList(ConcurrentDependencyGraph graph){
+    private List<SyntaxWord> toSyntaxWordList(ConcurrentDependencyGraph graph){
         final int INDEX = 0;
         final int TEXT = 1;
         final int INITIAL = 2;
@@ -57,13 +57,13 @@ public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWordInfo> {
         final int HEAD_INDEX = 6;
         final int LABEL = 7;
         String[] coNLLXWords = graph.toString().split("\n");
-        List<SyntaxWordInfo> syntaxWords = new ArrayList<>();
+        List<SyntaxWord> syntaxWords = new ArrayList<>();
         for(String coNLLXWord : coNLLXWords) {
             if (coNLLXWord.equals("")) {
                 continue;
             }
             String[] attrs = coNLLXWord.split("\t");
-            SyntaxWordInfo info = new SyntaxWordInfo(attrs[TEXT], attrs[INITIAL], attrs[TAG], attrs[FEATS],
+            SyntaxWord info = new SyntaxWord(attrs[TEXT], attrs[INITIAL], attrs[TAG], attrs[FEATS],
                     Integer.parseInt(attrs[INDEX]), Integer.parseInt(attrs[HEAD_INDEX]), attrs[LABEL]);
             syntaxWords.add(info);
         }

@@ -1,14 +1,11 @@
-import nlp.TextService;
-import nlp.words.SyntaxWordInfo;
 import org.annolab.tt4j.TreeTaggerException;
 import org.maltparser.core.exception.MaltChainedException;
 import ru.stachek66.nlp.mystem.holding.MyStemApplicationException;
-import texterra.NamedAnnotationEntity;
-import texterra.Texterra;
+import nlp.texterra.NamedAnnotationEntity;
+import nlp.texterra.Texterra;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -23,17 +20,17 @@ public class Main {
         int k = text.length();
         /*String s = "1\tГо\tго\tM\tM\tMo---d\t0\tROOT\t_\t_\n2\tбухать\tбухать\tV\tV\tVmn----a-e\t1\tпредик\t_\t_\n";
         String[] ss = s.split("\n");
-        List<SyntaxWordInfo> words = new ArrayList<>();
+        List<SyntaxWord> words = new ArrayList<>();
         for(String re : ss) {
             if (re.equals(""))
                 continue;
             String[] attrs = re.split("\t");
-            SyntaxWordInfo info = new SyntaxWordInfo(attrs[1], attrs[2], attrs[3], attrs[5], Integer.parseInt(attrs[0]), Integer.parseInt(attrs[6]), attrs[7]);
+            SyntaxWord info = new SyntaxWord(attrs[1], attrs[2], attrs[3], attrs[5], Integer.parseInt(attrs[0]), Integer.parseInt(attrs[6]), attrs[7]);
             words.add(info);
         }*/
         //int k = text.length();
         /*List<Info> res = textService.parse("привет мама");
-        System.out.println(new Gson().toJson(new nlp.words.MorphWordInfo(res.get(0).rawResponse())));*/
+        System.out.println(new Gson().toJson(new nlp.words.MorphWord(res.get(0).rawResponse())));*/
         // List<String> sentenceList = textService.getAllSentences();
         //textService.syntaxParsingSentence(0);
         //textService.syntaxParsingSentence(sentenceList.get(0));

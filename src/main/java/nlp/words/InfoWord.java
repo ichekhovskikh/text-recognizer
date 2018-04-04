@@ -1,5 +1,5 @@
 package nlp.words;
 
-public interface WordInfo {
+public interface InfoWord {
     String getText();
 }

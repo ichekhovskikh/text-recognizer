@@ -1,6 +1,7 @@
-package texterra;
+package nlp.texterra;
 
 import com.google.gson.annotations.SerializedName;
+import nlp.NamedTag;
 
 import java.util.List;
 
@@ -103,11 +104,11 @@ public class NamedAnnotationEntity implements AnnotationEntity {
         private String type = null;
 
         @SerializedName("tag")
-        private Tag tag = null;
+        private NamedTag tag = null;
 
         public NamedType() { }
 
-        public NamedType(String type, Tag tag) {
+        public NamedType(String type, NamedTag tag) {
             this.type = type;
             this.tag = tag;
         }
@@ -120,46 +121,12 @@ public class NamedAnnotationEntity implements AnnotationEntity {
             this.type = type;
         }
 
-        public Tag getTag() {
+        public NamedTag getTag() {
             return tag;
         }
 
-        public void setTag(Tag tag) {
+        public void setTag(NamedTag tag) {
             this.tag = tag;
         }
-    }
-
-    public enum Tag {
-        PERSON,
-        NORP_NATIONALITY,
-        NORP_RELIGION,
-        NORP_POLITICAL,
-        NORP_OTHER,
-        FACILITY,
-        ORGANIZATION_CORPORATION,
-        ORGANIZATION_EDUCATIONAL,
-        ORGANIZATION_POLITICAL,
-        ORGANIZATION_OTHER,
-        GPE_COUNTRY,
-        GPE_CITY,
-        GPE_STATE_PROVINCE,
-        GPE_OTHER,
-        LOCATION_RIVER,
-        LOCATION_LAKE_SEA_OCEAN,
-        LOCATION_REGION,
-        LOCATION_CONTINENT,
-        LOCATION_OTHER,
-        PRODUCT,
-        DATE,
-        TIME,
-        MONEY,
-        EVENT,
-        PLANT,
-        ANIMAL,
-        SUBSTANCE,
-        DISEASE,
-        WORK_OF_ART,
-        LANGUAGE,
-        GAME
     }
 }

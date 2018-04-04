@@ -1,4 +1,4 @@
-package texterra;
+package nlp.texterra;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -6,10 +6,9 @@ import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
-import texterra.rest.TextRequest;
-import texterra.rest.TexterraApi;
+import nlp.texterra.rest.RequestText;
+import nlp.texterra.rest.TexterraApi;
 import retrofit2.*;
 
 import javax.annotation.Nullable;
@@ -25,7 +24,7 @@ public class Texterra {
     public Texterra() {
         parser = new GsonBuilder().create();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://localhost:8082/texterra/")
+                .baseUrl("http://localhost:8082/nlp.texterra/")
                 .build();
         texterraApi = retrofit.create(TexterraApi.class);
     }
@@ -42,13 +41,13 @@ public class Texterra {
         return parser.fromJson(CharStreams.toString(response.body().charStream()), ArrayList.class);
     }
 
-    private List<TextRequest> getRequestList(List<String> texts) {
+    private List<RequestText> getRequestList(List<String> texts) {
         return Lists.transform(texts,
-                new Function<String, TextRequest>() {
+                new Function<String, RequestText>() {
                     @Nullable
                     @Override
-                    public TextRequest apply(@Nullable String text) {
-                        return new TextRequest(text);
+                    public RequestText apply(@Nullable String text) {
+                        return new RequestText(text);
                     }
                 });
     }

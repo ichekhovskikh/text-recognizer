@@ -1,5 +1,6 @@
 package nlp;
 
+import nlp.words.MorphWord;
 import org.maltparser.concurrent.*;
 import ru.stachek66.nlp.mystem.holding.*;
 import org.annolab.tt4j.*;
@@ -9,7 +10,6 @@ import org.maltparser.core.exception.MaltChainedException;
 import ru.stachek66.nlp.mystem.model.Info;
 import scala.Option;
 import scala.collection.JavaConversions;
-import nlp.words.MorphWordInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +77,7 @@ public class TextService {
 
     public void syntaxParsingSentence(String sentence) throws MaltChainedException, MyStemApplicationException, IOException, TreeTaggerException {
         String[] tokens = getTokens(sentence);
-        List<MorphWordInfo> infoList = treeTaggerMorphAnalysis(tokens);
+        List<MorphWord> infoList = treeTaggerMorphAnalysis(tokens);
         String[] coNLLX = new String[tokens.length];
         for (int i = 0; i < tokens.length; i++) {
             coNLLX[i] = buildCoNLLX(i, tokens[i], infoList.get(i).getInitial(),
@@ -111,10 +111,10 @@ public class TextService {
                 .toArray(String[]::new);
     }
 
-    private List<MorphWordInfo> treeTaggerMorphAnalysis(String[] words) throws IOException, TreeTaggerException {
-        final List<MorphWordInfo> wordInfoList = new ArrayList<>();
+    private List<MorphWord> treeTaggerMorphAnalysis(String[] words) throws IOException, TreeTaggerException {
+        final List<MorphWord> wordInfoList = new ArrayList<>();
         tagger.setHandler((TokenHandler<String>)(token, pos, lemma) -> {
-            wordInfoList.add(new MorphWordInfo(token, lemma, String.valueOf(pos.charAt(0)), pos));
+            wordInfoList.add(new MorphWord(token, lemma, String.valueOf(pos.charAt(0)), pos));
         });
         tagger.process(Lists.newArrayList(words));
         return wordInfoList;

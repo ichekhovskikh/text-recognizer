@@ -4,19 +4,19 @@ import com.google.gson.annotations.SerializedName;
 
 import java.beans.Transient;
 
-public class SerializeWordInfo implements WordInfo {
+public class SerializedWord implements InfoWord {
     private String text;
     private Analyse[] analysis;
 
-    public SerializeWordInfo() {
+    public SerializedWord() {
     }
 
-    public SerializeWordInfo(String text, Analyse[] analysis) {
+    public SerializedWord(String text, Analyse[] analysis) {
         this.text = text;
         this.analysis = analysis;
     }
 
-    public SerializeWordInfo(String text, String gr, String lex) {
+    public SerializedWord(String text, String gr, String lex) {
         this.text = text;
         this.analysis = new Analyse[] { new Analyse(gr, lex) };
     }

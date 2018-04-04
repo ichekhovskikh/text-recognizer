@@ -1,4 +1,4 @@
-package texterra;
+package nlp.texterra;
 
 public interface AnnotationEntity {
     String getText();

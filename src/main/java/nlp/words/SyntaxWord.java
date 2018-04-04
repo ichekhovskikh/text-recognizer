@@ -1,12 +1,12 @@
 package nlp.words;
 
-public class SyntaxWordInfo extends MorphWordInfo {
-    private int index;
-    private int headIndex;
-    private String label;
-    private Category category;
+public class SyntaxWord extends MorphWord {
+    protected int index;
+    protected int headIndex;
+    protected String label;
+    protected Category category;
 
-    public SyntaxWordInfo(String rawResponse, int index, int headIndex, String label){
+    public SyntaxWord(String rawResponse, int index, int headIndex, String label){
         super(rawResponse);
         this.index = index;
         this.headIndex = headIndex;
@@ -14,7 +14,7 @@ public class SyntaxWordInfo extends MorphWordInfo {
         setCategory(tag);
     }
 
-    public SyntaxWordInfo(SerializeWordInfo serializeWordInfo, int index, int headIndex, String label) {
+    public SyntaxWord(SerializedWord serializeWordInfo, int index, int headIndex, String label) {
         super(serializeWordInfo);
         this.index = index;
         this.headIndex = headIndex;
@@ -22,11 +22,29 @@ public class SyntaxWordInfo extends MorphWordInfo {
         setCategory(tag);
     }
 
-    public SyntaxWordInfo(MorphWordInfo morphWordInfo, int index, int headIndex, String label) {
-        this(morphWordInfo.text, morphWordInfo.initial, morphWordInfo.tag, morphWordInfo.feats, index, headIndex, label);
+    public SyntaxWord(
+            MorphWord morphWord,
+            int index,
+            int headIndex,
+            String label) {
+        this(
+                morphWord.text,
+                morphWord.initial,
+                morphWord.tag,
+                morphWord.feats,
+                index,
+                headIndex,
+                label);
     }
 
-    public SyntaxWordInfo(String text, String initial, String tag, String feats, int index, int headIndex, String label) {
+    public SyntaxWord(
+            String text,
+            String initial,
+            String tag,
+            String feats,
+            int index,
+            int headIndex,
+            String label) {
         super(text, initial, tag, feats);
         this.index = index;
         this.headIndex = headIndex;
