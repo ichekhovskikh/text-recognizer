@@ -21,6 +21,10 @@ public class NlpSentence {
         return tokens;
     }
 
+    public String getNormalizeText() {
+        return text.replaceAll("[^A-Za-zА-Яа-яЁё| ]", "");
+    }
+
     public List<String> getTokens(String text) {
         List<String> tokens = Lists.newArrayList(text.replaceAll("[^A-Za-zА-Яа-яЁё| ]", "").split(" "));
         tokens.removeIf(elem -> elem != null && !elem.equals(""));
