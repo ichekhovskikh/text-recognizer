@@ -1,55 +1,19 @@
 package nlp.words;
 
-public class SyntaxWord extends MorphWord {
+public class SyntaxWord implements InfoWord {
     protected int index;
     protected int headIndex;
+    protected String text;
     protected String label;
-    protected Category category;
 
-    public SyntaxWord(String rawResponse, int index, int headIndex, String label){
-        super(rawResponse);
+    public SyntaxWord() {
+    }
+
+    public SyntaxWord(int index, int headIndex, String text, String label) {
         this.index = index;
         this.headIndex = headIndex;
         this.label = label;
-        setCategory(tag);
-    }
-
-    public SyntaxWord(SerializedWord serializeWordInfo, int index, int headIndex, String label) {
-        super(serializeWordInfo);
-        this.index = index;
-        this.headIndex = headIndex;
-        this.label = label;
-        setCategory(tag);
-    }
-
-    public SyntaxWord(
-            MorphWord morphWord,
-            int index,
-            int headIndex,
-            String label) {
-        this(
-                morphWord.text,
-                morphWord.initial,
-                morphWord.tag,
-                morphWord.feats,
-                index,
-                headIndex,
-                label);
-    }
-
-    public SyntaxWord(
-            String text,
-            String initial,
-            String tag,
-            String feats,
-            int index,
-            int headIndex,
-            String label) {
-        super(text, initial, tag, feats);
-        this.index = index;
-        this.headIndex = headIndex;
-        this.label = label;
-        setCategory(this.tag);
+        this.text = text;
     }
 
     public int getIndex() {
@@ -64,31 +28,24 @@ public class SyntaxWord extends MorphWord {
         return label;
     }
 
-    public Category getCategory() {
-        return category;
+    public void setIndex(int index) {
+        this.index = index;
     }
 
-    private void setCategory(String tag){
-        for (Category category : Category.values()) {
-            if (tag.equals(String.valueOf(category.name().charAt(0)))) {
-                this.category = category;
-                return;
-            }
-        }
+    public void setHeadIndex(int headIndex) {
+        this.headIndex = headIndex;
     }
 
-    public enum Category {
-        N_NOUN,
-        V_VERB,
-        A_ADJECTIVE,
-        P_PRONOUN,
-        R_ADVERB,
-        S_ADPOSITION,
-        C_CONJUNCTION,
-        M_NUMERAL,
-        Q_PARTICLE,
-        I_INTERJECTION,
-        Y_ABBREVIATION,
-        X_RESIDUAL
+    @Override
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 }

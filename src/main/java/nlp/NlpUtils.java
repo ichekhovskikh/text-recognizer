@@ -1,7 +1,9 @@
 package nlp;
 
 import nlp.texterra.NamedAnnotationEntity;
+import nlp.words.MorphWord;
 import nlp.words.NamedWord;
+import nlp.words.RelationWord;
 import nlp.words.SyntaxWord;
 
 import java.util.ArrayList;
@@ -10,6 +12,9 @@ import java.util.stream.Collectors;
 
 public class NlpUtils {
 
+    private NlpUtils() {
+    }
+
     public static List<NamedWord> transformNamedAnnotationsEntity(
             NlpSentence sentence,
             List<NamedAnnotationEntity> entities,
@@ -17,15 +22,76 @@ public class NlpUtils {
         List<NamedWord> namedWords = new ArrayList<>();
         for (NamedAnnotationEntity entity : entities) {
             for (NamedAnnotationEntity.NamedEntity namedEntity : entity.getAnnotation().getNamedEntities()) {
-                List<Integer> indexes = getNamedWordIndexes(sentence, namedEntity.getStart(), namedEntity.getEnd());
+                List<Integer> indexes = getWordIndexes(sentence, namedEntity.getStart(), namedEntity.getEnd());
                 namedWords.add(getNamedWord(syntaxWords, indexes, namedEntity.getValue()));
             }
         }
         return namedWords;
     }
 
-    private static List<Integer> getNamedWordIndexes(NlpSentence sentence, int start, int end) {
-        List<Integer> indexes = new ArrayList<Integer>();
+    public static int getParentNamedWord(List<SyntaxWord> syntaxWords, NamedWord namedWord) {
+        return getParentWord(syntaxWords, namedWord.getIndexes());
+    }
+
+    public static int getParentRelationWord(List<SyntaxWord> syntaxWords, RelationWord relationWord) {
+        return getParentWord(syntaxWords, relationWord.getIndexes());
+    }
+
+    public static String getInitialNamedWord(List<MorphWord> morphWords, NamedWord namedWord) {
+        return getInitialWord(morphWords, namedWord.getIndexes());
+    }
+
+    public static String getInitialRelationWord(List<MorphWord> morphWords, RelationWord relationWord) {
+        return getInitialWord(morphWords, relationWord.getIndexes());
+    }
+
+    //todo сделать поиск инициаторов отошения
+    public static List<NamedWord> getParentRelationship(List<NamedWord> namedWord, RelationWord relationWord) {
+        return null;
+    }
+
+    //todo сделать поиск зависимых слов в отошение
+    public static List<NamedWord> getChildRelationship(List<NamedWord> namedWord, RelationWord relationWord) {
+        return null;
+    }
+
+    private static String getInitialWord(List<MorphWord> morphWords, List<Integer> indexes) {
+        StringBuilder namedInitial = new StringBuilder();
+        for (int i = 0; i < indexes.size(); i++) {
+            int index = indexes.get(i);
+            MorphWord morphWord = morphWords
+                    .stream()
+                    .findFirst()
+                    .filter(morph -> morph.geIndex() == index)
+                    .get();
+            namedInitial.append(morphWord.getInitial());
+            if (i == indexes.size() - 1) {
+                namedInitial.append(" ");
+            }
+        }
+        return namedInitial.toString();
+    }
+
+    private static int getParentWord(List<SyntaxWord> syntaxWords, List<Integer> indexes) {
+        for (SyntaxWord parent : syntaxWords) {
+            if (!indexes.contains(parent.getIndex())) {
+                continue;
+            }
+            boolean isParent = true;
+            for (int i = 0; isParent && i < syntaxWords.size(); i++) {
+                SyntaxWord child = syntaxWords.get(i);
+                if (parent == child || !indexes.contains(child.getIndex())) {
+                    continue;
+                }
+                isParent = (parent.getHeadIndex() != child.getIndex());
+            }
+            if (isParent) return parent.getIndex();
+        }
+        return -1;
+    }
+
+    private static List<Integer> getWordIndexes(NlpSentence sentence, int start, int end) {
+        List<Integer> indexes = new ArrayList<>();
         String[] words = sentence.getNormalizeText().split(" ");
         int prevLength = 0;
         for (int i = 0; i < words.length; i++) {
@@ -47,32 +113,19 @@ public class NlpUtils {
             throw new IllegalArgumentException("'SyntaxWords' is invalid!");
         }
         if (namedSyntaxWords.size() == 1) {
-            return new NamedWord(namedSyntaxWords.get(0), value.getTag(), value.getType());
+            SyntaxWord syntaxWord = namedSyntaxWords.get(0);
+            return new NamedWord(indexes, syntaxWord.getText(), value.getTag(), value.getType());
         }
-        SyntaxWord mainNamedWord = namedSyntaxWords.stream()
-                .findFirst()
-                .filter(parent -> namedSyntaxWords.stream().allMatch(
-                        child -> parent != child && parent.getHeadIndex() != child.getIndex()))
-                .get();
 
         StringBuilder namedText = new StringBuilder();
-        StringBuilder namedInitial = new StringBuilder();
         for (int i = 0; i < namedSyntaxWords.size(); i++) {
             namedText.append(namedSyntaxWords.get(i).getText());
-            namedInitial.append(namedSyntaxWords.get(i).getInitial());
             if (i == namedSyntaxWords.size() - 1) {
                 namedText.append(" ");
-                namedInitial.append(" ");
             }
         }
-        return new NamedWord(
+        return new NamedWord(indexes,
                 namedText.toString(),
-                namedInitial.toString(),
-                mainNamedWord.getTag(),
-                mainNamedWord.getFeats(),
-                mainNamedWord.getIndex(),
-                mainNamedWord.getHeadIndex(),
-                mainNamedWord.getLabel(),
                 value.getTag(),
                 value.getType());
     }

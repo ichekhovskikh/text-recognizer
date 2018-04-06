@@ -1,3 +1,4 @@
+import nlp.TextService;
 import org.annolab.tt4j.TreeTaggerException;
 import org.maltparser.core.exception.MaltChainedException;
 import ru.stachek66.nlp.mystem.holding.MyStemApplicationException;
@@ -13,7 +14,8 @@ public class Main {
     public static void main(String[] args) throws MaltChainedException, IOException, URISyntaxException, MyStemApplicationException, TreeTaggerException {
         String text = "Самарская область является частью России.";
 
-        //TextService textService = new TextService(text);
+        TextService textService = new TextService(text);
+        textService.syntaxParsingSentence(0);
 
         Texterra texterra = new Texterra();
         List<NamedAnnotationEntity> entity = texterra.getNamedAnnotationEntities("Пошли гулять по Москве.");

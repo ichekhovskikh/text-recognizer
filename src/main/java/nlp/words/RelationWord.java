@@ -1,42 +1,37 @@
 package nlp.words;
 
-import nlp.NamedTag;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class NamedWord implements InfoWord {
+public class RelationWord implements InfoWord {
     private String text;
     private List<Integer> indexes;
     private String type;
-    private NamedTag namedTag;
 
-    public NamedWord() {
+    public RelationWord() {
         this.indexes = new ArrayList<>();
     }
 
-    public NamedWord(String text, NamedTag namedTag, String type) {
+    public RelationWord(String text, String type) {
         this.text = text;
         this.indexes = new ArrayList<>();
-        this.namedTag = namedTag;
         this.type = type;
     }
 
-    public NamedWord(int index, String text, NamedTag namedTag, String type) {
-        this(Collections.singletonList(index), text, namedTag, type);
+    public RelationWord(int index, String text, String type) {
+        this(Collections.singletonList(index), text, type);
     }
 
-    public NamedWord(int[] indexes, String text, NamedTag namedTag, String type) {
-        this(Arrays.stream(indexes).boxed().collect(Collectors.toList()), text, namedTag, type);
+    public RelationWord(int[] indexes, String text, String type) {
+        this(Arrays.stream(indexes).boxed().collect(Collectors.toList()), text, type);
     }
 
-    public NamedWord(List<Integer> indexes, String text, NamedTag namedTag, String type) {
+    public RelationWord(List<Integer> indexes, String text, String type) {
         this.text = text;
         this.indexes = indexes;
-        this.namedTag = namedTag;
         this.type = type;
     }
 
@@ -63,13 +58,5 @@ public class NamedWord implements InfoWord {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public NamedTag getNamedTag() {
-        return namedTag;
-    }
-
-    public void setNamedTag(NamedTag namedTag) {
-        this.namedTag = namedTag;
     }
 }

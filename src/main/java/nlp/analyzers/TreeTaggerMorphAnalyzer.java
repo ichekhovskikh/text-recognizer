@@ -15,16 +15,25 @@ public class TreeTaggerMorphAnalyzer implements NlpAnalyzer<MorphWord> {
     private TreeTaggerWrapper tagger = null;
 
     public TreeTaggerMorphAnalyzer() throws IOException {
+        this("russian-utf8.par:utf8");
+    }
+
+    public TreeTaggerMorphAnalyzer(String pathModel) throws IOException {
         System.setProperty("treetagger.home", "/treetagger");
         tagger = new TreeTaggerWrapper<String>();
-        tagger.setModel("russian-utf8.par:utf8");
+        tagger.setModel(pathModel);
+    }
+
+    public void setModel(String pathModel) throws IOException {
+        tagger.setModel(pathModel);
     }
 
     public List<MorphWord> parse(NlpSentence sentence) throws NlpParseException {
         try {
             final List<MorphWord> wordList = new ArrayList<>();
             tagger.setHandler((TokenHandler<String>) (token, pos, lemma) -> {
-                wordList.add(new MorphWord(token, lemma, String.valueOf(pos.charAt(0)), pos));
+                int index = wordList.size() + 1;
+                wordList.add(new MorphWord(index, token, lemma, String.valueOf(pos.charAt(0)), pos));
             });
             tagger.process(Lists.newArrayList(sentence.getTokens()));
             return wordList;

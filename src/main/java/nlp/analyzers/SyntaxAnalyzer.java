@@ -19,10 +19,18 @@ public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWord> {
     private TreeTaggerMorphAnalyzer tagger = null;
 
     public SyntaxAnalyzer(TreeTaggerMorphAnalyzer tagger) throws URISyntaxException, IOException, MaltChainedException {
+        this(tagger, "russian.mco");
+    }
+
+    public SyntaxAnalyzer(TreeTaggerMorphAnalyzer tagger, String pathModel) throws URISyntaxException, IOException, MaltChainedException {
         this.tagger = tagger;
+        setModel(pathModel);
+    }
+
+    public void setModel(String pathModel) throws IOException, URISyntaxException, MaltChainedException {
         File mcoFile = new File(getClass()
                 .getClassLoader()
-                .getResource("russian.mco")
+                .getResource(pathModel)
                 .toURI());
         maltParser = ConcurrentMaltParserService.initializeParserModel(mcoFile);
     }
@@ -51,9 +59,6 @@ public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWord> {
     private List<SyntaxWord> toSyntaxWordList(ConcurrentDependencyGraph graph){
         final int INDEX = 0;
         final int TEXT = 1;
-        final int INITIAL = 2;
-        final int TAG = 3;
-        final int FEATS = 5;
         final int HEAD_INDEX = 6;
         final int LABEL = 7;
         String[] coNLLXWords = graph.toString().split("\n");
@@ -63,8 +68,11 @@ public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWord> {
                 continue;
             }
             String[] attrs = coNLLXWord.split("\t");
-            SyntaxWord info = new SyntaxWord(attrs[TEXT], attrs[INITIAL], attrs[TAG], attrs[FEATS],
-                    Integer.parseInt(attrs[INDEX]), Integer.parseInt(attrs[HEAD_INDEX]), attrs[LABEL]);
+            SyntaxWord info = new SyntaxWord(
+                    Integer.parseInt(attrs[INDEX]),
+                    Integer.parseInt(attrs[HEAD_INDEX]),
+                    attrs[TEXT],
+                    attrs[LABEL]);
             syntaxWords.add(info);
         }
         return syntaxWords;
