@@ -55,6 +55,20 @@ public class NlpUtils {
         return null;
     }
 
+    public static List<Integer> getWordIndexes(NlpSentence sentence, int start, int end) {
+        List<Integer> indexes = new ArrayList<>();
+        List<String> words = sentence.getTokens();
+        int prevLength = 0;
+        for (int i = 0; i < words.size(); i++) {
+            prevLength += words.get(i).length();
+            if (start <= prevLength && prevLength < end) {
+                indexes.add(i);
+            }
+            prevLength++;
+        }
+        return indexes;
+    }
+
     private static String getInitialWord(List<MorphWord> morphWords, List<Integer> indexes) {
         StringBuilder namedInitial = new StringBuilder();
         for (int i = 0; i < indexes.size(); i++) {
@@ -88,20 +102,6 @@ public class NlpUtils {
             if (isParent) return parent.getIndex();
         }
         return -1;
-    }
-
-    private static List<Integer> getWordIndexes(NlpSentence sentence, int start, int end) {
-        List<Integer> indexes = new ArrayList<>();
-        String[] words = sentence.getNormalizeText().split(" ");
-        int prevLength = 0;
-        for (int i = 0; i < words.length; i++) {
-            prevLength += words[i].length();
-            if (start <= prevLength && prevLength < end) {
-                indexes.add(i);
-            }
-            prevLength++;
-        }
-        return indexes;
     }
 
     private static NamedWord getNamedWord(List<SyntaxWord> syntaxWords, List<Integer> indexes, NamedAnnotationEntity.NamedType value) {

@@ -22,11 +22,14 @@ public class NlpSentence {
     }
 
     public String getNormalizeText() {
-        return text.replaceAll("[^A-Za-zА-Яа-яЁё| ]", "");
+        String normalizeText = text.replaceAll("[^A-Za-zА-Яа-яЁё| ]", "");
+        while (normalizeText.contains("  "))
+            normalizeText.replaceAll("  ", " ");
+        return normalizeText;
     }
 
-    public List<String> getTokens(String text) {
-        List<String> tokens = Lists.newArrayList(text.replaceAll("[^A-Za-zА-Яа-яЁё| ]", "").split(" "));
+    private List<String> getTokens(String text) {
+        List<String> tokens = Lists.newArrayList(getNormalizeText().split(" "));
         tokens.removeIf(elem -> elem != null && !elem.equals(""));
         return tokens;
     }

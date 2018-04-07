@@ -1,12 +1,15 @@
 package nlp.analyzers;
 
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import nlp.NlpSentence;
+import nlp.NlpUtils;
 import nlp.words.RelationWord;
 import nlp.words.SyntaxWord;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RelationshipAnalyzer implements NlpAnalyzer<RelationWord> {
@@ -28,9 +31,21 @@ public class RelationshipAnalyzer implements NlpAnalyzer<RelationWord> {
         this.model = new RelationshipModel(modelPath);
     }
 
-    //todo реализовать поиск отношений
     public List<RelationWord> parse(NlpSentence sentence) {
-        return null;
+        List<RelationWord> words = new ArrayList<>();
+        String normalizeText = sentence.getNormalizeText();
+        List<String> keys = model.getKeys();
+        for (String key : keys) {
+            for (String value : model.getValues(key)) {
+                int index = normalizeText.indexOf(value);
+                while (index != -1) {
+                    List<Integer> indexes = NlpUtils.getWordIndexes(sentence, index, index + value.length());
+                    words.add(new RelationWord(indexes, value, key));
+                    index = normalizeText.indexOf(value, index + value.length());
+                }
+            }
+        }
+        return words;
     }
 
     public void saveModel(String savePath) throws IOException {
