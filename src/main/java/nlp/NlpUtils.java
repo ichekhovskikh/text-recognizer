@@ -21,7 +21,7 @@ public class NlpUtils {
             List<SyntaxWord> syntaxWords) {
         List<NamedWord> namedWords = new ArrayList<>();
         for (NamedAnnotationEntity entity : entities) {
-            for (NamedAnnotationEntity.NamedEntity namedEntity : entity.getAnnotation().getNamedEntities()) {
+            for (NamedAnnotationEntity.NamedEntity namedEntity : entity.getAnnotations().getNamedEntities()) {
                 List<Integer> indexes = getWordIndexes(sentence, namedEntity.getStart(), namedEntity.getEnd());
                 namedWords.add(getNamedWord(syntaxWords, indexes, namedEntity.getValue()));
             }
@@ -61,8 +61,8 @@ public class NlpUtils {
         int prevLength = 0;
         for (int i = 0; i < words.size(); i++) {
             prevLength += words.get(i).length();
-            if (start <= prevLength && prevLength < end) {
-                indexes.add(i);
+            if (start <= prevLength && prevLength <= end) {
+                indexes.add(i + 1);
             }
             prevLength++;
         }
@@ -73,13 +73,12 @@ public class NlpUtils {
         StringBuilder namedInitial = new StringBuilder();
         for (int i = 0; i < indexes.size(); i++) {
             int index = indexes.get(i);
-            MorphWord morphWord = morphWords
+            MorphWord morphWord = (MorphWord) morphWords
                     .stream()
-                    .findFirst()
                     .filter(morph -> morph.geIndex() == index)
-                    .get();
+                    .toArray()[0];
             namedInitial.append(morphWord.getInitial());
-            if (i == indexes.size() - 1) {
+            if (i != indexes.size() - 1) {
                 namedInitial.append(" ");
             }
         }
@@ -106,7 +105,7 @@ public class NlpUtils {
 
     private static NamedWord getNamedWord(List<SyntaxWord> syntaxWords, List<Integer> indexes, NamedAnnotationEntity.NamedType value) {
         List<SyntaxWord> namedSyntaxWords = syntaxWords.stream()
-                .filter(syntaxWord -> indexes.contains(syntaxWord.getIndex() - 1))
+                .filter(syntaxWord -> indexes.contains(syntaxWord.getIndex()))
                 .collect(Collectors.toList());
 
         if (namedSyntaxWords.isEmpty()) {
@@ -120,7 +119,7 @@ public class NlpUtils {
         StringBuilder namedText = new StringBuilder();
         for (int i = 0; i < namedSyntaxWords.size(); i++) {
             namedText.append(namedSyntaxWords.get(i).getText());
-            if (i == namedSyntaxWords.size() - 1) {
+            if (i != namedSyntaxWords.size() - 1) {
                 namedText.append(" ");
             }
         }

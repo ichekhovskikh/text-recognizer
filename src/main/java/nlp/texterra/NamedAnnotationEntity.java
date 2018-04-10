@@ -6,33 +6,36 @@ import nlp.NamedTag;
 import java.util.List;
 
 public class NamedAnnotationEntity implements AnnotationEntity {
-    @SerializedName("text")
+
     private String text = null;
 
-    @SerializedName("annotations")
-    private NamedAnnotation annotation = null;
+    private NamedAnnotation annotations = null;
 
     public NamedAnnotationEntity(){}
 
-    public NamedAnnotationEntity(String text, NamedAnnotation annotation) {
+    public NamedAnnotationEntity(String text, NamedAnnotation annotations) {
         this.text = text;
-        this.annotation = annotation;
+        this.annotations = annotations;
     }
 
+    @SerializedName("text")
     public String getText() {
         return text;
     }
 
+    @SerializedName("text")
     public void setText(String text) {
         this.text = text;
     }
 
-    public NamedAnnotation getAnnotation() {
-        return annotation;
+    @SerializedName("annotations")
+    public NamedAnnotation getAnnotations() {
+        return annotations;
     }
 
-    public void setAnnotation(NamedAnnotation annotation) {
-        this.annotation = annotation;
+    @SerializedName("annotations")
+    public void setAnnotations(NamedAnnotation annotations) {
+        this.annotations = annotations;
     }
 
     public class NamedAnnotation {
@@ -55,6 +58,7 @@ public class NamedAnnotationEntity implements AnnotationEntity {
     }
 
     public class NamedEntity {
+
         @SerializedName("value")
         private NamedType value = null;
 
@@ -100,10 +104,8 @@ public class NamedAnnotationEntity implements AnnotationEntity {
 
     public class NamedType {
 
-        @SerializedName("type")
         private String type = null;
 
-        @SerializedName("tag")
         private NamedTag tag = null;
 
         public NamedType() { }
@@ -113,18 +115,22 @@ public class NamedAnnotationEntity implements AnnotationEntity {
             this.tag = tag;
         }
 
+        @SerializedName("type")
         public String getType() {
             return type;
         }
 
+        @SerializedName("type")
         public void setType(String type) {
             this.type = type;
         }
 
+        @SerializedName("tag")
         public NamedTag getTag() {
             return tag;
         }
 
+        @SerializedName("tag")
         public void setTag(NamedTag tag) {
             this.tag = tag;
         }

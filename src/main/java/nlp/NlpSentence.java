@@ -30,7 +30,7 @@ public class NlpSentence {
 
     private List<String> getTokens(String text) {
         List<String> tokens = Lists.newArrayList(getNormalizeText().split(" "));
-        tokens.removeIf(elem -> elem != null && !elem.equals(""));
+        tokens.removeIf(elem -> elem == null || elem.equals(""));
         return tokens;
     }
 }

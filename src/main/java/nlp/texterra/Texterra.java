@@ -3,6 +3,7 @@ package nlp.texterra;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.RequestBody;
@@ -24,7 +25,7 @@ public class Texterra {
     public Texterra() {
         parser = new GsonBuilder().create();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://localhost:8082/nlp.texterra/")
+                .baseUrl("http://localhost:8082/texterra/")
                 .build();
         texterraApi = retrofit.create(TexterraApi.class);
     }
@@ -38,7 +39,7 @@ public class Texterra {
         RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), bodyJson);
         Call<ResponseBody> call = texterraApi.getFromNLP("named-entity", body);
         retrofit2.Response<ResponseBody> response = call.execute();
-        return parser.fromJson(CharStreams.toString(response.body().charStream()), ArrayList.class);
+        return parser.fromJson(CharStreams.toString(response.body().charStream()), new TypeToken<List<NamedAnnotationEntity>>(){}.getType());
     }
 
     private List<RequestText> getRequestList(List<String> texts) {

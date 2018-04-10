@@ -1,13 +1,19 @@
 package nlp;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NlpText {
     private String text = null;
-    private List<String> sentences = null;
+    private List<NlpSentence> sentences = null;
 
     public NlpText(String text) {
         this.text = text;
@@ -18,11 +24,11 @@ public class NlpText {
         return text;
     }
 
-    public String getSentence(int index) {
+    public NlpSentence getSentence(int index) {
         return sentences.get(index);
     }
 
-    public List<String> getAllSentences() {
+    public List<NlpSentence> getAllSentences() {
         return sentences;
     }
 
@@ -30,7 +36,7 @@ public class NlpText {
         return sentences.size();
     }
 
-    private List<String> splitText(String text) {
+    private List<NlpSentence> splitText(String text) {
         final int MIN_LENGTH = 3;
         Pattern pattern = Pattern.compile(
                 "(^|(?<=[.!?]\\s))(\\d+\\.\\s?)*[А-ЯA-Z][^!?]*?[.!?](?=\\s*(\\d+\\.\\s)*[А-ЯA-Z]|$)",
@@ -46,6 +52,6 @@ public class NlpText {
                 sentences.set(sentences.size() - 1, lastSentence + " " + sentence);
             else sentences.add(sentence);
         }
-        return sentences;
+        return Lists.transform(sentences, elem -> new NlpSentence(elem));
     }
 }
