@@ -52,6 +52,8 @@ public class NlpText {
                 sentences.set(sentences.size() - 1, lastSentence + " " + sentence);
             else sentences.add(sentence);
         }
+        if (sentences.size() == 1 && sentences.get(0).equals(""))
+            sentences.set(0, text);
         return Lists.transform(sentences, elem -> new NlpSentence(elem));
     }
 }

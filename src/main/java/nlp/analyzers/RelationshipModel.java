@@ -10,13 +10,16 @@ import java.beans.Transient;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RelationshipModel {
-    private Multimap<String, String> relations = null;
+    private Map<String, List<String>> relations = null;
 
     public RelationshipModel(){
-        relations = HashMultimap.create();
+        relations = new HashMap<>();
     }
 
     public RelationshipModel(String path) throws IOException {
@@ -28,18 +31,25 @@ public class RelationshipModel {
     }
 
     @SerializedName("relations")
-    public Multimap<String, String> getRelations() {
+    public Map<String, List<String>> getRelations() {
         return relations;
     }
 
     @SerializedName("relations")
-    public void setRelations(Multimap<String, String> relations) {
+    public void setRelations(Map<String, List<String>> relations) {
         this.relations = relations;
     }
 
     @Transient
+    public void addRelation(String key, String value) {
+        if (relations.containsKey(key))
+            relations.get(key).add(value);
+        else relations.put(key, Lists.newArrayList(value));
+    }
+
+    @Transient
     public List<String> getValues(String key) {
-        return Lists.newArrayList(relations.get(key));
+        return relations.get(key);
     }
 
     @Transient

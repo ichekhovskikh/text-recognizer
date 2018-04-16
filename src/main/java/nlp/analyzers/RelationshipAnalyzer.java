@@ -15,8 +15,8 @@ import java.util.List;
 public class RelationshipAnalyzer implements NlpAnalyzer<RelationWord> {
     private RelationshipModel model = null;
 
-    public RelationshipAnalyzer() {
-        model = new RelationshipModel();
+    public RelationshipAnalyzer() throws IOException {
+        setModel("russian.rel");
     }
 
     public RelationshipAnalyzer(RelationshipModel model) throws IOException {
