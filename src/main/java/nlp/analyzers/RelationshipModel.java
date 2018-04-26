@@ -7,8 +7,12 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 import java.beans.Transient;
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,8 +26,13 @@ public class RelationshipModel {
         relations = new HashMap<>();
     }
 
-    public RelationshipModel(String path) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(path));
+    public RelationshipModel(String path) throws IOException, URISyntaxException {
+        Path relPath = new File(getClass()
+                .getClassLoader()
+                .getResource(path)
+                .toURI()).toPath();
+
+        List<String> lines = Files.readAllLines(relPath, Charset.forName("windows-1251"));
         StringBuilder jsonModel = new StringBuilder();
         for (String line : lines)
             jsonModel.append(line).append(" ");

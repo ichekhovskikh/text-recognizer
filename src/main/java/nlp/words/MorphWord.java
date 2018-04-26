@@ -44,7 +44,7 @@ public class MorphWord implements InfoWord {
         return feats;
     }
 
-    public int geIndex() {
+    public int getIndex() {
         return index;
     }
 

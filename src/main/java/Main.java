@@ -6,25 +6,78 @@ import nlp.NlpUtils;
 import nlp.analyzers.*;
 import nlp.words.MorphWord;
 import nlp.words.NamedWord;
+import nlp.words.RelationWord;
 import nlp.words.SyntaxWord;
 import org.annolab.tt4j.TreeTaggerException;
 import org.maltparser.core.exception.MaltChainedException;
 import ru.stachek66.nlp.mystem.holding.MyStemApplicationException;
 import nlp.texterra.NamedAnnotationEntity;
 import nlp.texterra.Texterra;
-import ru.stachek66.nlp.mystem.model.Info;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Main {
 
     public static void main(String[] args) throws MaltChainedException, IOException, URISyntaxException, MyStemApplicationException, TreeTaggerException, NlpParseException {
-        testJsonModel();
+        testAdjectiveEnd();
+    }
+
+    private static void testAdjectiveEnd() throws IOException, URISyntaxException, NlpParseException, MaltChainedException {
+        String text = "Самарский область   является  частью  России  .";
+        NlpText nlpText = new NlpText(text);
+        NlpSentence nlpSentence = nlpText.getSentence(0);
+
+        Texterra texterra = new Texterra();
+        List<NamedAnnotationEntity> entities = texterra.getNamedAnnotationEntities(text);
+
+        TreeTaggerMorphAnalyzer morphAnalyzer = new TreeTaggerMorphAnalyzer();
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(morphAnalyzer);
+
+        List<MorphWord> morphWords = morphAnalyzer.parse(nlpSentence);
+        List<SyntaxWord> syntaxWords = syntaxAnalyzer.parse(nlpSentence);
+        List<NamedWord> namedWords = NlpUtils.transformNamedAnnotationsEntity(nlpSentence, entities, syntaxWords);
+
+        NamedWord namedWord = NlpUtils.wordMatching(namedWords.get(0), syntaxWords, morphWords);
+
+        System.out.println(namedWord.getText());
+    }
+
+    private static void testRelationship() throws IOException, URISyntaxException, NlpParseException, MaltChainedException {
+        String text = "Самарская область   является  частью  России  .";
+        NlpText nlpText = new NlpText(text);
+        NlpSentence nlpSentence = nlpText.getSentence(0);
+
+        Texterra texterra = new Texterra();
+        List<NamedAnnotationEntity> entities = texterra.getNamedAnnotationEntities(text);
+
+        TreeTaggerMorphAnalyzer morphAnalyzer = new TreeTaggerMorphAnalyzer();
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(morphAnalyzer);
+        RelationshipAnalyzer analyzer = new RelationshipAnalyzer();
+
+        List<MorphWord> morphWords = morphAnalyzer.parse(nlpSentence);
+        List<SyntaxWord> syntaxWords = syntaxAnalyzer.parse(nlpSentence);
+        List<NamedWord> namedWords = NlpUtils.transformNamedAnnotationsEntity(nlpSentence, entities, syntaxWords);
+        List<RelationWord> relationWords = analyzer.parse(nlpSentence);
+
+        for (RelationWord word : relationWords) {
+            System.out.println(NlpUtils.getParentRelationship(word, syntaxWords, namedWords).get(0).getText() + "  "
+                    + word.getText() + "  "
+                    + NlpUtils.getChildRelationship(word, syntaxWords, namedWords).get(0).getText());
+        }
+    }
+
+    private static void testRelations() throws IOException, URISyntaxException, NlpParseException {
+        String text = "Самарская область   является  частью  России  .";
+        NlpText nlpText = new NlpText(text);
+        NlpSentence nlpSentence = nlpText.getSentence(0);
+
+        RelationshipAnalyzer analyzer = new RelationshipAnalyzer();
+        List<RelationWord> relationWords = analyzer.parse(nlpSentence);
+
+        for (RelationWord word : relationWords)
+            System.out.println(word.getText());
     }
 
     private static void testJsonModel() {
@@ -34,13 +87,24 @@ public class Main {
         model.addRelation("contains", "включает");
         model.addRelation("crosses", "пересекает");
         model.addRelation("inside", "имеет внутри");
-
-/*        Map<String, List<String>> map = new HashMap<>();
-        map.put("contains", Collections.singletonList("содержит"));
-        map.put("crosses", Collections.singletonList("пересекает"));
-        map.put("inside", Collections.singletonList("имеет внутри"));*/
-
         System.out.println(new Gson().toJson(model));
+    }
+
+    private static void testSyntax() throws MaltChainedException, IOException, URISyntaxException, MyStemApplicationException, TreeTaggerException, NlpParseException {
+
+        String text = "Самарская область   является   частью России  .";
+
+        NlpText nlpText = new NlpText(text);
+        NlpSentence nlpSentence = nlpText.getSentence(0);
+
+        TreeTaggerMorphAnalyzer morphAnalyzer = new TreeTaggerMorphAnalyzer();
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(morphAnalyzer);
+
+        List<MorphWord> morphWords = morphAnalyzer.parse(nlpSentence);
+        List<SyntaxWord> syntaxWords = syntaxAnalyzer.parse(nlpSentence);
+
+        for (SyntaxWord syntaxWord : syntaxWords)
+            System.out.println(syntaxWord.getText() + " - " + syntaxWord.getHeadIndex() + " - " + syntaxWord.getLabel());
     }
 
     private static void test() throws MaltChainedException, IOException, URISyntaxException, MyStemApplicationException, TreeTaggerException, NlpParseException {

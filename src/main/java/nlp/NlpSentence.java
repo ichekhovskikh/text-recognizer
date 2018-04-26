@@ -24,7 +24,7 @@ public class NlpSentence {
     public String getNormalizeText() {
         String normalizeText = text.replaceAll("[^A-Za-zА-Яа-яЁё| ]", "");
         while (normalizeText.contains("  "))
-            normalizeText.replaceAll("  ", " ");
+            normalizeText = normalizeText.replaceAll("  ", " ");
         return normalizeText;
     }
 

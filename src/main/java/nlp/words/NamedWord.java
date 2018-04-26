@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class NamedWord implements InfoWord {
+public class NamedWord implements InfoWord, Cloneable {
     private String text;
     private List<Integer> indexes;
     private String type;
@@ -71,5 +71,15 @@ public class NamedWord implements InfoWord {
 
     public void setNamedTag(NamedTag namedTag) {
         this.namedTag = namedTag;
+    }
+
+    @Override
+    public Object clone() {
+        NamedWord word = new NamedWord();
+        word.indexes = new ArrayList<>(indexes);
+        word.text = new String(text);
+        word.type = type;
+        word.namedTag = namedTag;
+        return word;
     }
 }

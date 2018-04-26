@@ -18,6 +18,10 @@ public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWord> {
     private ConcurrentMaltParserModel maltParser = null;
     private TreeTaggerMorphAnalyzer tagger = null;
 
+    public SyntaxAnalyzer() throws URISyntaxException, IOException, MaltChainedException {
+        this(new TreeTaggerMorphAnalyzer(), "russian.mco");
+    }
+
     public SyntaxAnalyzer(TreeTaggerMorphAnalyzer tagger) throws URISyntaxException, IOException, MaltChainedException {
         this(tagger, "russian.mco");
     }
