@@ -44,7 +44,7 @@ public class Main {
         System.out.println(namedWord.getText());
     }
 
-    private static void testRelationship() throws IOException, URISyntaxException, NlpParseException, MaltChainedException {
+/*    private static void testRelationship() throws IOException, URISyntaxException, NlpParseException, MaltChainedException {
         String text = "Самарская область   является  частью  России  .";
         NlpText nlpText = new NlpText(text);
         NlpSentence nlpSentence = nlpText.getSentence(0);
@@ -66,7 +66,7 @@ public class Main {
                     + word.getText() + "  "
                     + NlpUtils.getChildRelationship(word, syntaxWords, namedWords).get(0).getText());
         }
-    }
+    }*/
 
     private static void testRelations() throws IOException, URISyntaxException, NlpParseException {
         String text = "Самарская область   является  частью  России  .";

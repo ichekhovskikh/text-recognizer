@@ -1,16 +1,12 @@
 package nlp;
 
-import com.google.common.collect.Iterables;
 import nlp.texterra.NamedAnnotationEntity;
 import nlp.words.MorphWord;
 import nlp.words.NamedWord;
 import nlp.words.RelationWord;
 import nlp.words.SyntaxWord;
-import ru.stachek66.nlp.mystem.model.Person;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,18 +23,10 @@ public class NlpUtils {
         for (NamedAnnotationEntity entity : entities) {
             for (NamedAnnotationEntity.NamedEntity namedEntity : entity.getAnnotations().getNamedEntities()) {
                 List<Integer> indexes = getWordIndexes(sentence, namedEntity.getStart(), namedEntity.getEnd());
-                namedWords.add(getNamedWord(syntaxWords, indexes, namedEntity.getValue()));
+                namedWords.add(createNamedWordByIndexes(syntaxWords, indexes, namedEntity.getValue()));
             }
         }
         return namedWords;
-    }
-
-    public static int getParentNamedWordIndex(NamedWord namedWord, List<SyntaxWord> syntaxWords) {
-        return getParentWordIndex(syntaxWords, namedWord.getIndexes());
-    }
-
-    public static int getParentRelationWordIndex(RelationWord relationWord, List<SyntaxWord> syntaxWords) {
-        return getParentWordIndex(syntaxWords, relationWord.getIndexes());
     }
 
     public static String getInitialNamedWord(NamedWord namedWord, List<MorphWord> morphWords) {
@@ -47,30 +35,6 @@ public class NlpUtils {
 
     public static String getInitialRelationWord(RelationWord relationWord, List<MorphWord> morphWords) {
         return getInitialWord(morphWords, relationWord.getIndexes());
-    }
-
-    public static List<NamedWord> getParentRelationship(RelationWord relationWord, List<SyntaxWord> syntaxWords, List<NamedWord> namedWords) {
-        List<NamedWord> predicates = new ArrayList<>();
-        for (NamedWord namedWord : namedWords) {
-            int parentNamedWordIndex = getParentNamedWordIndex(namedWord, syntaxWords);
-            SyntaxWord syntaxWord = getSyntaxWord(syntaxWords, parentNamedWordIndex);
-            if (relationWord.getIndexes().contains(syntaxWord.getHeadIndex()) && syntaxWord.getLabel().equals("предик")){
-                predicates.add(namedWord);
-            }
-        }
-        return predicates;
-    }
-
-    public static List<NamedWord> getChildRelationship(RelationWord relationWord, List<SyntaxWord> syntaxWords, List<NamedWord> namedWords) {
-        List<NamedWord> quasiagents = new ArrayList<>();
-        for (NamedWord namedWord : namedWords) {
-            int parentNamedWordIndex = getParentNamedWordIndex(namedWord, syntaxWords);
-            SyntaxWord syntaxWord = getSyntaxWord(syntaxWords, parentNamedWordIndex);
-            if (relationWord.getIndexes().contains(syntaxWord.getHeadIndex()) && !syntaxWord.getLabel().equals("предик")){
-                quasiagents.add(namedWord);
-            }
-        }
-        return quasiagents;
     }
 
     public static NamedWord wordMatching(NamedWord namedWord, List<SyntaxWord> syntaxWords, List<MorphWord> morphWords){
@@ -123,22 +87,6 @@ public class NlpUtils {
         return namedInitial.toString();
     }
 
-    public static SyntaxWord getSyntaxWord(List<SyntaxWord> syntaxWords, int index) {
-        return syntaxWords
-                .stream()
-                .filter(elem -> elem.getIndex() == index)
-                .findFirst()
-                .get();
-    }
-
-    public static MorphWord getMorphWord(List<MorphWord> morphWords, int index) {
-        return morphWords
-                .stream()
-                .filter(elem -> elem.getIndex() == index)
-                .findFirst()
-                .get();
-    }
-
     private static String replaceAdjectiveEnd(String text, MorphWord parent) {
         int last = text.length() - 2;
         char gender = parent.getFeats().charAt(2);
@@ -160,25 +108,7 @@ public class NlpUtils {
         return builder.toString();
     }
 
-    private static int getParentWordIndex(List<SyntaxWord> syntaxWords, List<Integer> indexes) {
-        for (SyntaxWord parent : syntaxWords) {
-            if (!indexes.contains(parent.getIndex())) {
-                continue;
-            }
-            boolean isParent = true;
-            for (int i = 0; isParent && i < syntaxWords.size(); i++) {
-                SyntaxWord child = syntaxWords.get(i);
-                if (parent == child || !indexes.contains(child.getIndex())) {
-                    continue;
-                }
-                isParent = (parent.getHeadIndex() != child.getIndex());
-            }
-            if (isParent) return parent.getIndex();
-        }
-        return -1;
-    }
-
-    private static NamedWord getNamedWord(List<SyntaxWord> syntaxWords, List<Integer> indexes, NamedAnnotationEntity.NamedType value) {
+    private static NamedWord createNamedWordByIndexes(List<SyntaxWord> syntaxWords, List<Integer> indexes, NamedAnnotationEntity.NamedType value) {
         List<SyntaxWord> namedSyntaxWords = syntaxWords.stream()
                 .filter(syntaxWord -> indexes.contains(syntaxWord.getIndex()))
                 .collect(Collectors.toList());
@@ -202,5 +132,21 @@ public class NlpUtils {
                 namedText.toString(),
                 value.getTag(),
                 value.getType());
+    }
+
+    private static SyntaxWord getSyntaxWord(List<SyntaxWord> syntaxWords, int index) {
+        return syntaxWords
+                .stream()
+                .filter(elem -> elem.getIndex() == index)
+                .findFirst()
+                .get();
+    }
+
+    private static MorphWord getMorphWord(List<MorphWord> morphWords, int index) {
+        return morphWords
+                .stream()
+                .filter(elem -> elem.getIndex() == index)
+                .findFirst()
+                .get();
     }
 }
