@@ -27,18 +27,6 @@
         </plugins>
     </build>
 
-    <repositories><!--
-        <repository>
-            <id>Textocat Artifactory</id>
-            <name>Textocat Artifactory-releases</name>
-            <url>http://corp.textocat.com/artifactory/oss-libs-releases-local</url>
-        </repository>
-        <repository>
-            <id>aif.com</id>
-            <url>http://artifactory.aif.io/artifactory/libs-release-local</url>
-        </repository>-->
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -61,13 +49,6 @@
             <version>2.0.0-beta3</version>
         </dependency>
 
-
-        <!--
-        <dependency>
-            <groupId>io.aif.pipeline</groupId>
-                    <artifactId>pipeline</artifactId>
-                    <version>LATEST</version>
-        </dependency>-->
         <!--Morpho-->
         <!--обертка mystem https://nlpub.ru/Mystem#Java-->
         <dependency>
@@ -90,13 +71,39 @@
             <version>1.9.2</version>
         </dependency>
 
+        <!--работа с онтологией-->
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>apache-jena-libs</artifactId>
+            <type>pom</type>
+            <version>3.6.0</version>
+        </dependency>
 
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-tdb</artifactId>
+            <version>3.6.0</version>
+        </dependency>
 
-        <!--<dependency>
-            <groupId>edu.stanford.nlp</groupId>
-            <artifactId>stanford-corenlp</artifactId>
-            <version>3.9.1</version>
-        </dependency>-->
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-sdb</artifactId>
+            <version>3.6.0</version>
+        </dependency>
+
+        <!--визуализация графа-->
+
+        <dependency>
+            <groupId>jgraph</groupId>
+            <artifactId>jgraph</artifactId>
+            <version>5.13.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.jung</groupId>
+            <artifactId>jung2</artifactId>
+            <version>2.0.1</version>
+        </dependency>
 
     </dependencies>
 
