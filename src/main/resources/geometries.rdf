@@ -1,0 +1,30 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:j.0="http://www.opengis.net/ont/geosparql#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:j.1="http://www.opengis.net/ont/sf#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <owl:Class rdf:about="http://www.opengis.net/ont/sf#CITY"/>
+  <owl:Class rdf:about="http://www.opengis.net/ont/sf#COUNTRY"/>
+  <owl:Class rdf:about="http://www.opengis.net/ont/sf#LAKE_SEA_OCEAN"/>
+  <owl:Class rdf:about="http://www.opengis.net/ont/sf#REGION"/>
+  <owl:Class rdf:about="http://www.opengis.net/ont/sf#RIVER"/>
+  <owl:Class rdf:about="http://www.opengis.net/ont/sf#OTHER"/>
+  <owl:Class rdf:about="http://www.opengis.net/ont/sf#CONTINENT"/>
+  <owl:Class rdf:about="http://www.opengis.net/ont/sf#STATE_PROVINCE"/>
+  <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#coveredBy"/>
+  <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#covers"/>
+  <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#disjoint"/>
+  <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#externallyConnected"/>
+  <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#disconnected"/>
+  <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#contains"/>
+  <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#inside"/>
+  <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#crosses"/>
+  <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#equals"/>
+  <j.1:COUNTRY rdf:about="http://www.opengis.net/ont/sf#Russia">
+    <j.0:contains>
+      <j.1:CITY rdf:about="http://www.opengis.net/ont/sf#Samara"/>
+    </j.0:contains>
+  </j.1:COUNTRY>
+</rdf:RDF>

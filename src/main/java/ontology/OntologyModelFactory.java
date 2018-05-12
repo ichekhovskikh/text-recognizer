@@ -8,7 +8,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.util.FileManager;
 
 public class OntologyModelFactory {
-    public static final String PATH_ONTOLOGY = "simple_features_geometries.rdf";
+    public static final String PATH_ONTOLOGY = "geometries.rdf";
     private static final Model MODEL;
 
     static {
@@ -19,7 +19,7 @@ public class OntologyModelFactory {
     }
 
     public static OntModel createOntModel(){
-        return ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM, MODEL);
+        return ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, MODEL);
     }
 
     public static InfModel createRDFSModel(){

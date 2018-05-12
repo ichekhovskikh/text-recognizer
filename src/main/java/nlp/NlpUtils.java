@@ -15,6 +15,14 @@ public class NlpUtils {
     private NlpUtils() {
     }
 
+    public static String getClassName(NamedTag tag) {
+        String className = tag.toString();
+        int firstIndex = className.indexOf('_');
+        if (firstIndex != -1)
+            className = className.substring(firstIndex + 1, className.length());
+        return className;
+    }
+
     public static List<NamedWord> transformNamedAnnotationsEntity(
             NlpSentence sentence,
             List<NamedAnnotationEntity> entities,
