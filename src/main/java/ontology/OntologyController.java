@@ -70,15 +70,15 @@ public class OntologyController {
     }
 
     public void getGraph(){
-        ResIterator subjectsIterator = ontModel.listSubjects();
-        ExtendedIterator<ObjectProperty> propertiesIterator = ontModel.listObjectProperties();
+        ExtendedIterator<Individual> subjectsIterator = ontModel.listIndividuals();
         while (subjectsIterator.hasNext()) {
-            Resource subject = subjectsIterator.next();
+            Individual subject = subjectsIterator.next();
+            ExtendedIterator<ObjectProperty> propertiesIterator = ontModel.listObjectProperties();
             while (propertiesIterator.hasNext()) {
                 ObjectProperty property = propertiesIterator.next();
                 NodeIterator objectsIterator = ontModel.listObjectsOfProperty(subject, property);
                 while (objectsIterator.hasNext()) {
-                    RDFNode object = objectsIterator.next();
+                    Individual object = objectsIterator.next().as(Individual.class);
                     //subject.get
                     //TODO построить граф с помощью GraphBuilder
                 }

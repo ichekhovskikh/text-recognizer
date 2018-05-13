@@ -14,6 +14,7 @@ public class Test {
 
     public static void main (String[] args) throws FileNotFoundException {
         OntologyController ontologyController = new OntologyController();
+        ontologyController.getGraph();
         /*ontologyController.addIndividualProperty("Russia", "contains", "Samara");
         System.out.println("=====================================================");
         System.out.println(ontologyController.getIndividual("Russia"));

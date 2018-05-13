@@ -157,4 +157,45 @@ public class NlpUtils {
                 .findFirst()
                 .get();
     }
+
+
+
+    public static String getlocalizeName(NamedTag tag){
+        String name;
+        switch (tag) {
+            case GPE_COUNTRY: {
+                name = "СТРАНА";
+                break;
+            }
+            case GPE_CITY: {
+                name = "ГОРОД";
+                break;
+            }
+            case GPE_STATE_PROVINCE: {
+                name = "ГОСУДАРСТВЕННАЯ ПРОВИНЦИЯ";
+                break;
+            }
+            case LOCATION_RIVER: {
+                name = "РЕКА";
+                break;
+            }
+            case LOCATION_LAKE_SEA_OCEAN: {
+                name = "ОЗЕРО/МОРЕ/ОКЕАН";
+                break;
+            }
+            case LOCATION_REGION: {
+                name = "РЕГИОН";
+                break;
+            }
+            case LOCATION_CONTINENT: {
+                name = "КОНТИНЕНТ";
+                break;
+            }
+            default: {
+                name = "ПРОЧЕЕ";
+                break;
+            }
+        }
+        return name;
+    }
 }
