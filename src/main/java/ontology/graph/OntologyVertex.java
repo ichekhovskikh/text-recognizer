@@ -40,6 +40,6 @@ public class OntologyVertex {
         if (!(obj instanceof OntologyVertex))
             return false;
         OntologyVertex vertex = (OntologyVertex) obj;
-        return vertex.tag == tag && vertex.text.equals(text);
+        return vertex.tag == tag && vertex.text.toUpperCase().equals(text.toUpperCase());
     }
 }

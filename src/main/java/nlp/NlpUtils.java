@@ -26,7 +26,7 @@ public class NlpUtils {
     public static NamedTag getNamedTag(String className) {
         NamedTag[] values = NamedTag.values();
         for (NamedTag value : values) {
-            if (value.toString().contains(className)){
+            if (value.toString().toUpperCase().contains(className.toUpperCase())){
                 return value;
             }
         }

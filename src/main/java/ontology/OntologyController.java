@@ -1,5 +1,9 @@
 package ontology;
 
+import nlp.NlpUtils;
+import ontology.graph.OntologyEdge;
+import ontology.graph.OntologyGraph;
+import ontology.graph.OntologyVertex;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.util.FileManager;
@@ -69,20 +73,28 @@ public class OntologyController {
         ontModel.write(writer);
     }
 
-    public void getGraph(){
+    public OntologyGraph getGraph() {
+        OntologyGraph graph = new OntologyGraph();
         ExtendedIterator<Individual> subjectsIterator = ontModel.listIndividuals();
         while (subjectsIterator.hasNext()) {
             Individual subject = subjectsIterator.next();
+            OntologyVertex subjectVertex = new OntologyVertex(subject.getLocalName(),
+                    NlpUtils.getNamedTag(subject.getOntClass().getLocalName()));
+
             ExtendedIterator<ObjectProperty> propertiesIterator = ontModel.listObjectProperties();
             while (propertiesIterator.hasNext()) {
                 ObjectProperty property = propertiesIterator.next();
+                OntologyEdge edge = new OntologyEdge(property.getLocalName());
+
                 NodeIterator objectsIterator = ontModel.listObjectsOfProperty(subject, property);
                 while (objectsIterator.hasNext()) {
                     Individual object = objectsIterator.next().as(Individual.class);
-                    //subject.get
-                    //TODO построить OntologyGraph
+                    OntologyVertex objectVertex = new OntologyVertex(object.getLocalName(),
+                            NlpUtils.getNamedTag(object.getOntClass().getLocalName()));
+                    graph.addEdge(subjectVertex, edge, objectVertex);
                 }
             }
         }
+        return graph;
     }
 }

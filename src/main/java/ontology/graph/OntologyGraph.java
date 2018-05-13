@@ -2,6 +2,7 @@ package ontology.graph;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseGraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
@@ -34,7 +35,7 @@ public class OntologyGraph {
             objectVertex = object;
             graph.addVertex(objectVertex);
         }
-        graph.addEdge(GraphUtils.localizeEdge(property), subjectVertex, objectVertex);
+        graph.addEdge(GraphUtils.localizeEdge(property), subjectVertex, objectVertex, EdgeType.DIRECTED);
     }
 
     public Graph<OntologyVertex, OntologyEdge> getGraph() {
