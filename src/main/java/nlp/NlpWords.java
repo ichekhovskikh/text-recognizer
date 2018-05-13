@@ -8,6 +8,7 @@ import nlp.texterra.NamedAnnotationEntity;
 import nlp.texterra.Texterra;
 import nlp.words.*;
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.syntaxgraph.Sentence;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,7 +21,7 @@ public class NlpWords {
     private Texterra texterra;
     private TreeTaggerMorphAnalyzer morphAnalyzer;
     private SyntaxAnalyzer syntaxAnalyzer;
-    RelationshipAnalyzer relationshipAlyzer;
+    RelationshipAnalyzer relationshipAnalyzer;
 
     private List<MorphWord> morphWords;
     private List<SyntaxWord> syntaxWords;
@@ -29,28 +30,35 @@ public class NlpWords {
 
 
     public NlpWords() throws IOException, URISyntaxException, MaltChainedException, NlpParseException {
-        this("");
+        this.texterra = new Texterra();
+        this.morphAnalyzer = new TreeTaggerMorphAnalyzer();
+        this.syntaxAnalyzer = new SyntaxAnalyzer(morphAnalyzer);
+        this.relationshipAnalyzer = new RelationshipAnalyzer();
+        setSentence(new NlpSentence(""));
     }
 
-    public NlpWords(String sentence) throws IOException, URISyntaxException, MaltChainedException, NlpParseException {
-        this(new NlpSentence(sentence));
+    public NlpWords(Texterra texterra,
+                    TreeTaggerMorphAnalyzer morphAnalyzer,
+                    SyntaxAnalyzer syntaxAnalyzer,
+                    RelationshipAnalyzer relationshipAnalyzer) throws IOException, NlpParseException {
+        this.texterra = texterra;
+        this.morphAnalyzer = morphAnalyzer;
+        this.syntaxAnalyzer = syntaxAnalyzer;
+        this.relationshipAnalyzer = relationshipAnalyzer;
+        setSentence(new NlpSentence(""));
     }
 
-    public NlpWords(NlpSentence sentence) throws IOException, URISyntaxException, MaltChainedException, NlpParseException {
+    public NlpSentence getSentence() {
+        return sentence;
+    }
+
+    public void setSentence(NlpSentence sentence) throws IOException, NlpParseException {
         this.sentence = sentence;
-        texterra = new Texterra();
-        morphAnalyzer = new TreeTaggerMorphAnalyzer();
-        syntaxAnalyzer = new SyntaxAnalyzer(morphAnalyzer);
-        relationshipAlyzer = new RelationshipAnalyzer();
-        initialize();
-    }
-
-    private void initialize() throws IOException, NlpParseException {
         List<NamedAnnotationEntity> entities = texterra.getNamedAnnotationEntities(sentence.getText());
         morphWords = morphAnalyzer.parse(sentence);
         syntaxWords = syntaxAnalyzer.parse(sentence);
         namedWords = NlpUtils.transformNamedAnnotationsEntity(sentence, entities, syntaxWords);
-        relationWords = relationshipAlyzer.parse(sentence);
+        relationWords = relationshipAnalyzer.parse(sentence);
     }
 
     public SyntaxWord getSyntaxWord(int index) {

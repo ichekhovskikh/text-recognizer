@@ -6,7 +6,6 @@ import ontology.graph.OntologyGraph;
 import ontology.graph.OntologyVertex;
 import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.util.FileManager;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.io.FileNotFoundException;
@@ -26,7 +25,7 @@ public class OntologyController {
                 OntologyModelFactory.createRDFSModel());
     }
 
-    public OntologyController(String source, OntModel ontModel, InfModel infModel){
+    public OntologyController(String source, OntModel ontModel, InfModel infModel) {
         this.ontModel = ontModel;
         this.infModel = infModel;
         this.SOURCE = source;
@@ -34,11 +33,11 @@ public class OntologyController {
         OBJECT_PROPERTY_PATH = source + "geosparql#";
     }
 
-    public Individual getIndividual(String individualName){
+    public Individual getIndividual(String individualName) {
         return ontModel.getIndividual(INDIVIDUAL_PATH + individualName);
     }
 
-    public ObjectProperty getObjectProperty(String objectPropertyName){
+    public ObjectProperty getObjectProperty(String objectPropertyName) {
         return ontModel.getObjectProperty(OBJECT_PROPERTY_PATH + objectPropertyName);
     }
 
@@ -47,11 +46,11 @@ public class OntologyController {
         return classOfIndividual.createIndividual(INDIVIDUAL_PATH + individualName);
     }
 
-    public void addIndividualProperty(Individual subject, Individual object, ObjectProperty property){
+    public void addIndividualProperty(Individual subject, Individual object, ObjectProperty property) {
         ontModel.add(subject, property, object);
     }
 
-    public void addIndividualProperty(String subjectName, String objectName, String propertyName){
+    public void addIndividualProperty(String subjectName, String objectName, String propertyName) {
         Individual subject = getIndividual(subjectName);
         ObjectProperty property = getObjectProperty(objectName);
         Individual object = getIndividual(propertyName);
