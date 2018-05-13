@@ -46,7 +46,7 @@ public class GraphUtils {
         return color;
     }
 
-    public void localizeEdge(OntologyEdge edge) {
+    public static OntologyEdge localizeEdge(OntologyEdge edge) {
         String localizeText = edge.getText();
         if (edge.getText().equals("coveredBy")) {
             localizeText = "покрыт";
@@ -75,6 +75,6 @@ public class GraphUtils {
         else if (edge.getText().equals("equals")) {
             localizeText = "равен";
         }
-        edge.setText(localizeText);
+        return new OntologyEdge(localizeText);
     }
 }

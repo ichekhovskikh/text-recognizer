@@ -32,4 +32,14 @@ public class OntologyVertex {
     public String toString() {
         return text + " [" + NlpUtils.getlocalizeName(tag) + "]";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof OntologyVertex))
+            return false;
+        OntologyVertex vertex = (OntologyVertex) obj;
+        return vertex.tag == tag && vertex.text.equals(text);
+    }
 }

@@ -80,7 +80,7 @@ public class OntologyController {
                 while (objectsIterator.hasNext()) {
                     Individual object = objectsIterator.next().as(Individual.class);
                     //subject.get
-                    //TODO построить граф с помощью GraphBuilder
+                    //TODO построить OntologyGraph
                 }
             }
         }

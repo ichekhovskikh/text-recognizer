@@ -3,7 +3,6 @@ package ontology.graph;
 import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -11,11 +10,11 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import javax.annotation.Nullable;
 import java.awt.*;
 
-public class GraphVisualizationBuilder {
+public class GraphVisualizer {
     private BasicVisualizationServer<OntologyVertex, OntologyEdge> visualizationServer;
 
-    public GraphVisualizationBuilder(Graph<OntologyVertex, OntologyEdge> graph, Dimension size) {
-        Layout<OntologyVertex, OntologyEdge> layout = new CircleLayout(graph);
+    public GraphVisualizer(OntologyGraph graph, Dimension size) {
+        Layout<OntologyVertex, OntologyEdge> layout = new CircleLayout(graph.getGraph());
         layout.setSize(size);
         visualizationServer = new BasicVisualizationServer<>(layout);
         visualizationServer.setPreferredSize(new Dimension(size.width + 50,size.height + 50));

@@ -23,6 +23,16 @@ public class NlpUtils {
         return className;
     }
 
+    public static NamedTag getNamedTag(String className) {
+        NamedTag[] values = NamedTag.values();
+        for (NamedTag value : values) {
+            if (value.toString().contains(className)){
+                return value;
+            }
+        }
+        return null;
+    }
+
     public static List<NamedWord> transformNamedAnnotationsEntity(
             NlpSentence sentence,
             List<NamedAnnotationEntity> entities,
@@ -157,8 +167,6 @@ public class NlpUtils {
                 .findFirst()
                 .get();
     }
-
-
 
     public static String getlocalizeName(NamedTag tag){
         String name;
