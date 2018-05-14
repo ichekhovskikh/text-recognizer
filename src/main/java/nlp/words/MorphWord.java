@@ -74,7 +74,7 @@ public class MorphWord implements InfoWord {
 
     private void setCategory(String tag) {
         for (Category category : Category.values()) {
-            if (tag.equals(String.valueOf(category.name().charAt(0)))) {
+            if (tag.toUpperCase().equals(String.valueOf(category.name().charAt(0)))) {
                 this.category = category;
                 return;
             }

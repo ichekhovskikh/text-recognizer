@@ -30,7 +30,7 @@ public class OntologyVertex {
 
     @Override
     public String toString() {
-        return text + " [" + NlpUtils.getlocalizeName(tag) + "]";
+        return text + " [" + NlpUtils.getLocalizeName(tag) + "]";
     }
 
     @Override

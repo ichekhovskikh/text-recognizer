@@ -34,6 +34,7 @@ public class OntologyController {
     }
 
     public Individual getIndividual(String individualName) {
+        individualName = individualName.toUpperCase();
         return ontModel.getIndividual(INDIVIDUAL_PATH + individualName);
     }
 
@@ -42,18 +43,19 @@ public class OntologyController {
     }
 
     public Individual addIndividual(String individualName, String className) {
+        individualName = individualName.toUpperCase();
         OntClass classOfIndividual = ontModel.getOntClass(INDIVIDUAL_PATH + className);
         return classOfIndividual.createIndividual(INDIVIDUAL_PATH + individualName);
     }
 
-    public void addIndividualProperty(Individual subject, Individual object, ObjectProperty property) {
+    public void addIndividualProperty(Individual subject, ObjectProperty property, Individual object) {
         ontModel.add(subject, property, object);
     }
 
     public void addIndividualProperty(String subjectName, String objectName, String propertyName) {
         Individual subject = getIndividual(subjectName);
-        ObjectProperty property = getObjectProperty(objectName);
-        Individual object = getIndividual(propertyName);
+        ObjectProperty property = getObjectProperty(propertyName);
+        Individual object = getIndividual(objectName);
         ontModel.add(subject, property, object);
     }
 

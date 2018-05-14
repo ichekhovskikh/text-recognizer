@@ -1,6 +1,7 @@
 package ontology.graph;
 
 import nlp.NamedTag;
+import nlp.NlpUtils;
 
 import java.awt.*;
 
@@ -46,35 +47,8 @@ public class GraphUtils {
         return color;
     }
 
-    public static OntologyEdge localizeEdge(OntologyEdge edge) {
-        String localizeText = edge.getText();
-        if (edge.getText().equals("coveredBy")) {
-            localizeText = "покрыт";
-        }
-        else if (edge.getText().equals("covers")) {
-            localizeText = "охватывает";
-        }
-        else if (edge.getText().equals("crosses")) {
-            localizeText = "пересекает";
-        }
-        else if (edge.getText().equals("disconnected")) {
-            localizeText = "изолированный от";
-        }
-        else if (edge.getText().equals("disjoint")) {
-            localizeText = "разделяет";
-        }
-        else if (edge.getText().equals("externallyConnected")) {
-            localizeText = "внешне связан";
-        }
-        else if (edge.getText().equals("contains")) {
-            localizeText = "содержит";
-        }
-        else if (edge.getText().equals("inside")) {
-            localizeText = "содержится внутри";
-        }
-        else if (edge.getText().equals("equals")) {
-            localizeText = "равен";
-        }
+    public static OntologyEdge getLocalizeEdge(OntologyEdge edge) {
+        String localizeText = NlpUtils.getLocalizeType(edge.getText());
         return new OntologyEdge(localizeText);
     }
 }

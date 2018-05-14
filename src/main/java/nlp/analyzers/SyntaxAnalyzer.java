@@ -40,6 +40,9 @@ public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWord> {
     }
 
     public List<SyntaxWord> parse(NlpSentence sentence) throws NlpParseException {
+        if (sentence == null || sentence.getText().equals(""))
+            return new ArrayList<>();
+
         List<String> tokens = sentence.getTokens();
         List<MorphWord> infoList = tagger.parse(sentence);
         String[] coNLLX = new String[tokens.size()];

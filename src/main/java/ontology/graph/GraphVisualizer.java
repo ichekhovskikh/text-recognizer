@@ -17,7 +17,7 @@ public class GraphVisualizer {
         Layout<OntologyVertex, OntologyEdge> layout = new CircleLayout(graph.getGraph());
         layout.setSize(size);
         visualizationServer = new BasicVisualizationServer<>(layout);
-        visualizationServer.setPreferredSize(new Dimension(size.width + 50,size.height + 50));
+        visualizationServer.setPreferredSize(new Dimension(size.width + 50, size.height + 50));
 
     }
 
@@ -48,7 +48,7 @@ public class GraphVisualizer {
         visualizationServer.getRenderContext().setEdgeStrokeTransformer(edgeStrokeTransformer);
     }
 
-    public void addLabels(){
+    public void addLabels() {
         visualizationServer.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         visualizationServer.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller());
     }
@@ -57,7 +57,7 @@ public class GraphVisualizer {
         visualizationServer.getRenderer().getVertexLabelRenderer().setPosition(position);
     }
 
-    public Component getVisualizationComponent(){
+    public Component getVisualizationComponent() {
         return visualizationServer;
     }
 }

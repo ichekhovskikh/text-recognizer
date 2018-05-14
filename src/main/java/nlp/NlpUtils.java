@@ -39,7 +39,9 @@ public class NlpUtils {
             List<SyntaxWord> syntaxWords) {
         List<NamedWord> namedWords = new ArrayList<>();
         for (NamedAnnotationEntity entity : entities) {
-            for (NamedAnnotationEntity.NamedEntity namedEntity : entity.getAnnotations().getNamedEntities()) {
+            List<NamedAnnotationEntity.NamedEntity> namedEntities = entity.getAnnotations().getNamedEntities();
+            if (namedEntities == null) continue;
+            for (NamedAnnotationEntity.NamedEntity namedEntity : namedEntities) {
                 List<Integer> indexes = getWordIndexes(sentence, namedEntity.getStart(), namedEntity.getEnd());
                 namedWords.add(createNamedWordByIndexes(syntaxWords, indexes, namedEntity.getValue()));
             }
@@ -55,9 +57,7 @@ public class NlpUtils {
         return getInitialWord(morphWords, relationWord.getIndexes());
     }
 
-    public static NamedWord wordMatching(NamedWord namedWord, List<SyntaxWord> syntaxWords, List<MorphWord> morphWords){
-        NamedWord word = (NamedWord) namedWord.clone();
-        List<Integer> indexes = namedWord.getIndexes();
+    public static String wordMatching(List<Integer> indexes, List<SyntaxWord> syntaxWords, List<MorphWord> morphWords){
         StringBuilder text = new StringBuilder();
         for (int index : indexes) {
             MorphWord morphWord = getMorphWord(morphWords, index);
@@ -71,8 +71,7 @@ public class NlpUtils {
                 text.append(" ");
             }
         }
-        word.setText(text.toString());
-        return word;
+        return text.toString();
     }
 
     public static List<Integer> getWordIndexes(NlpSentence sentence, int start, int end) {
@@ -168,7 +167,7 @@ public class NlpUtils {
                 .get();
     }
 
-    public static String getlocalizeName(NamedTag tag){
+    public static String getLocalizeName(NamedTag tag){
         String name;
         switch (tag) {
             case GPE_COUNTRY: {
@@ -205,5 +204,37 @@ public class NlpUtils {
             }
         }
         return name;
+    }
+
+    public static String getLocalizeType(String type) {
+        String localizeText = type;
+        if (type.equals("coveredBy")) {
+            localizeText = "покрыт";
+        }
+        else if (type.equals("covers")) {
+            localizeText = "охватывает";
+        }
+        else if (type.equals("crosses")) {
+            localizeText = "пересекает";
+        }
+        else if (type.equals("disconnected")) {
+            localizeText = "изолированный от";
+        }
+        else if (type.equals("disjoint")) {
+            localizeText = "разделяет";
+        }
+        else if (type.equals("externallyConnected")) {
+            localizeText = "внешне связан";
+        }
+        else if (type.equals("contains")) {
+            localizeText = "содержит";
+        }
+        else if (type.equals("inside")) {
+            localizeText = "содержится внутри";
+        }
+        else if (type.equals("equals")) {
+            localizeText = "равен";
+        }
+        return localizeText;
     }
 }

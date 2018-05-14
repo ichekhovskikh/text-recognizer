@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-public class Main {
+public class Test {
 
     public static void main(String[] args) throws MaltChainedException, IOException, URISyntaxException, MyStemApplicationException, TreeTaggerException, NlpParseException {
         testAdjectiveEnd();
@@ -39,9 +39,9 @@ public class Main {
         List<SyntaxWord> syntaxWords = syntaxAnalyzer.parse(nlpSentence);
         List<NamedWord> namedWords = NlpUtils.transformNamedAnnotationsEntity(nlpSentence, entities, syntaxWords);
 
-        NamedWord namedWord = NlpUtils.wordMatching(namedWords.get(0), syntaxWords, morphWords);
+        String nameText = NlpUtils.wordMatching(namedWords.get(0).getIndexes(), syntaxWords, morphWords);
 
-        System.out.println(namedWord.getText());
+        System.out.println(nameText);
     }
 
 /*    private static void testRelationship() throws IOException, URISyntaxException, NlpParseException, MaltChainedException {

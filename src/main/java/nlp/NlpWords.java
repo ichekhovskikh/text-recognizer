@@ -93,6 +93,22 @@ public class NlpWords {
                 .get();
     }
 
+    public List<MorphWord> getMorphWords() {
+        return morphWords;
+    }
+
+    public List<SyntaxWord> getSyntaxWords() {
+        return syntaxWords;
+    }
+
+    public List<NamedWord> getNamedWords() {
+        return namedWords;
+    }
+
+    public List<RelationWord> getRelationWords() {
+        return relationWords;
+    }
+
     public int getParentNamedWordIndex(int namedWordIndex) {
         return getParentNamedWordIndex(getNamedWord(namedWordIndex));
     }
