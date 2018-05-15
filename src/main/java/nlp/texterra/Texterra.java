@@ -15,7 +15,6 @@ import retrofit2.*;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public class Texterra {
     private Gson parser = null;
 
     public Texterra() {
-        TexterraServer.start();
         parser = new GsonBuilder().create();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://localhost:8082/texterra/")

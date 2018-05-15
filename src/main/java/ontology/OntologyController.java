@@ -12,8 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 public class OntologyController {
-    private OntModel ontModel;
-    private InfModel infModel;
+    private OntModel model;
 
     private final String SOURCE;
     private final String INDIVIDUAL_PATH;
@@ -21,42 +20,52 @@ public class OntologyController {
 
     public OntologyController() {
         this("http://www.opengis.net/ont/",
-                OntologyModelFactory.createOntModel(),
-                OntologyModelFactory.createRDFSModel());
+                OntologyModelFactory.createOntModel());
     }
 
-    public OntologyController(String source, OntModel ontModel, InfModel infModel) {
-        this.ontModel = ontModel;
-        this.infModel = infModel;
+    public OntologyController(String source, OntModel model) {
+        this.model = model;
         this.SOURCE = source;
         INDIVIDUAL_PATH = source + "sf#";
         OBJECT_PROPERTY_PATH = source + "geosparql#";
     }
 
+    public String getSource() {
+        return SOURCE;
+    }
+
+    public String getIndividualPath() {
+        return INDIVIDUAL_PATH;
+    }
+
+    public String getObjectPropertyPath() {
+        return OBJECT_PROPERTY_PATH;
+    }
+
     public Individual getIndividual(String individualName) {
         individualName = individualName.toUpperCase();
-        return ontModel.getIndividual(INDIVIDUAL_PATH + individualName);
+        return model.getIndividual(INDIVIDUAL_PATH + individualName);
     }
 
     public ObjectProperty getObjectProperty(String objectPropertyName) {
-        return ontModel.getObjectProperty(OBJECT_PROPERTY_PATH + objectPropertyName);
+        return model.getObjectProperty(OBJECT_PROPERTY_PATH + objectPropertyName);
     }
 
     public Individual addIndividual(String individualName, String className) {
         individualName = individualName.toUpperCase();
-        OntClass classOfIndividual = ontModel.getOntClass(INDIVIDUAL_PATH + className);
+        OntClass classOfIndividual = model.getOntClass(INDIVIDUAL_PATH + className);
         return classOfIndividual.createIndividual(INDIVIDUAL_PATH + individualName);
     }
 
     public void addIndividualProperty(Individual subject, ObjectProperty property, Individual object) {
-        ontModel.add(subject, property, object);
+        model.add(subject, property, object);
     }
 
     public void addIndividualProperty(String subjectName, String objectName, String propertyName) {
         Individual subject = getIndividual(subjectName);
         ObjectProperty property = getObjectProperty(propertyName);
         Individual object = getIndividual(objectName);
-        ontModel.add(subject, property, object);
+        model.add(subject, property, object);
     }
 
     public void commit() {
@@ -66,28 +75,28 @@ public class OntologyController {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-        ontModel.write(writer);
+        model.write(writer);
     }
 
     public void saveOntology(String path) throws FileNotFoundException {
         PrintWriter writer = new PrintWriter(path);
-        ontModel.write(writer);
+        model.write(writer);
     }
 
     public OntologyGraph getGraph() {
         OntologyGraph graph = new OntologyGraph();
-        ExtendedIterator<Individual> subjectsIterator = ontModel.listIndividuals();
+        ExtendedIterator<Individual> subjectsIterator = model.listIndividuals();
         while (subjectsIterator.hasNext()) {
             Individual subject = subjectsIterator.next();
             OntologyVertex subjectVertex = new OntologyVertex(subject.getLocalName(),
                     NlpUtils.getNamedTag(subject.getOntClass().getLocalName()));
 
-            ExtendedIterator<ObjectProperty> propertiesIterator = ontModel.listObjectProperties();
+            ExtendedIterator<ObjectProperty> propertiesIterator = model.listObjectProperties();
             while (propertiesIterator.hasNext()) {
                 ObjectProperty property = propertiesIterator.next();
                 OntologyEdge edge = new OntologyEdge(property.getLocalName());
 
-                NodeIterator objectsIterator = ontModel.listObjectsOfProperty(subject, property);
+                NodeIterator objectsIterator = model.listObjectsOfProperty(subject, property);
                 while (objectsIterator.hasNext()) {
                     Individual object = objectsIterator.next().as(Individual.class);
                     OntologyVertex objectVertex = new OntologyVertex(object.getLocalName(),

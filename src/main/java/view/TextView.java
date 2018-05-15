@@ -4,7 +4,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import nlp.NlpSentence;
 import nlp.NlpText;
 import nlp.NlpUtils;
-import nlp.NlpWords;
+import nlp.NlpController;
 import nlp.analyzers.NlpParseException;
 import nlp.words.NamedWord;
 import nlp.words.RelationWord;
@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class TextView {
-    private OntologyController controller;
-    private NlpWords nlpWords;
+    private OntologyController ontologyController;
+    private NlpController nlpController;
 
     private WordsView wordsView;
 
@@ -29,20 +29,16 @@ public class TextView {
     private JLabel label;
     private JFrame frame;
 
-    public TextView(OntologyController controller, NlpWords nlpWords) {
-        this(controller, nlpWords, new Font("Custom", Font.PLAIN, 28));
+    public TextView(OntologyController ontologyController, NlpController nlpController) {
+        this(ontologyController, nlpController, new Font("Custom", Font.PLAIN, 28));
     }
 
-    public TextView(OntologyController controller, NlpWords nlpWords, Font font) {
-        this.controller = controller;
-        this.nlpWords = nlpWords;
+    public TextView(OntologyController ontologyController, NlpController nlpController, Font font) {
+        this.ontologyController = ontologyController;
+        this.nlpController = nlpController;
         wordsView = new WordsView();
         initComponents(font);
     }
-
-/*    public TextView() {
-        initComponents(new Font("Custom", Font.PLAIN, 28));
-    }*/
 
     public void setFont(Font font) {
         label.setFont(font);
@@ -101,23 +97,23 @@ public class TextView {
             wordsView.clearTable();
             for (NlpSentence sentence : text.getAllSentences()) {
                 try {
-                    nlpWords.setSentence(sentence);
+                    nlpController.setSentence(sentence);
                 } catch (IOException | NlpParseException ex) {
                     JOptionPane.showMessageDialog(frame,
                             "Не удалось обработать [" + ex.getMessage() + "]!",
                             "Ошибка", JOptionPane.WARNING_MESSAGE);
                 }
-                List<RelationWord> properties = nlpWords.getRelationWords();
+                List<RelationWord> properties = nlpController.getRelationWords();
                 for (RelationWord property : properties) {
-                    List<NamedWord> subjects = nlpWords.getParentRelationship(property);
-                    List<NamedWord> objects = nlpWords.getChildRelationship(property);
+                    List<NamedWord> subjects = nlpController.getParentRelationship(property);
+                    List<NamedWord> objects = nlpController.getChildRelationship(property);
 
                     for (NamedWord subject : subjects) {
                         for (NamedWord object : objects) {
-                            String subjectName = NlpUtils.wordMatching(subject.getIndexes(), nlpWords.getSyntaxWords(), nlpWords.getMorphWords());
+                            String subjectName = NlpUtils.wordMatching(subject.getIndexes(), nlpController.getSyntaxWords(), nlpController.getMorphWords());
                             subjectName += " [" + NlpUtils.getLocalizeName(subject.getNamedTag()) + "]";
 
-                            String objectName = NlpUtils.wordMatching(object.getIndexes(), nlpWords.getSyntaxWords(), nlpWords.getMorphWords());
+                            String objectName = NlpUtils.wordMatching(object.getIndexes(), nlpController.getSyntaxWords(), nlpController.getMorphWords());
                             objectName += " [" + NlpUtils.getLocalizeName(object.getNamedTag()) + "]";
 
                             wordsView.addTableRow(subjectName.toUpperCase(),
@@ -138,40 +134,40 @@ public class TextView {
             NlpText text = new NlpText(textArea.getText());
             for (NlpSentence sentence : text.getAllSentences()) {
                 try {
-                    nlpWords.setSentence(sentence);
+                    nlpController.setSentence(sentence);
                 } catch (IOException | NlpParseException ex) {
                     JOptionPane.showMessageDialog(frame,
                             "Не удалось построить онтологию [" + ex.getMessage() + "]!",
                             "Ошибка", JOptionPane.WARNING_MESSAGE);
                 }
-                List<RelationWord> properties = nlpWords.getRelationWords();
+                List<RelationWord> properties = nlpController.getRelationWords();
                 for (RelationWord property : properties) {
-                    List<NamedWord> subjects = nlpWords.getParentRelationship(property);
-                    List<NamedWord> objects = nlpWords.getChildRelationship(property);
+                    List<NamedWord> subjects = nlpController.getParentRelationship(property);
+                    List<NamedWord> objects = nlpController.getChildRelationship(property);
 
                     for (NamedWord subject : subjects) {
                         for (NamedWord object : objects) {
-                            String subjectName = NlpUtils.wordMatching(subject.getIndexes(), nlpWords.getSyntaxWords(), nlpWords.getMorphWords());
+                            String subjectName = NlpUtils.wordMatching(subject.getIndexes(), nlpController.getSyntaxWords(), nlpController.getMorphWords());
                             String subjectClassName = NlpUtils.getClassName(subject.getNamedTag());
 
-                            String objectName = NlpUtils.wordMatching(object.getIndexes(), nlpWords.getSyntaxWords(), nlpWords.getMorphWords());
+                            String objectName = NlpUtils.wordMatching(object.getIndexes(), nlpController.getSyntaxWords(), nlpController.getMorphWords());
                             String objectClassName = NlpUtils.getClassName(object.getNamedTag());
 
-                            controller.addIndividual(subjectName, subjectClassName);
-                            controller.addIndividual(objectName, objectClassName);
-                            controller.addIndividualProperty(subjectName, objectName, property.getType());
+                            ontologyController.addIndividual(subjectName, subjectClassName);
+                            ontologyController.addIndividual(objectName, objectClassName);
+                            ontologyController.addIndividualProperty(subjectName, objectName, property.getType());
                         }
                     }
                 }
             }
-            controller.commit();
+            ontologyController.commit();
         }
     }
 
     private class ShowAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            OntologyGraph graph = controller.getGraph();
+            OntologyGraph graph = ontologyController.getGraph();
             GraphVisualizer visualizer = new GraphVisualizer(graph, new Dimension(1000, 1000));
             visualizer.addLabels();
             visualizer.setPosition(Renderer.VertexLabel.Position.CNTR);

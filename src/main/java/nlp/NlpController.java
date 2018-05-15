@@ -8,14 +8,13 @@ import nlp.texterra.NamedAnnotationEntity;
 import nlp.texterra.Texterra;
 import nlp.words.*;
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.syntaxgraph.Sentence;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NlpWords {
+public class NlpController {
     private NlpSentence sentence;
 
     private Texterra texterra;
@@ -29,7 +28,7 @@ public class NlpWords {
     List<RelationWord> relationWords;
 
 
-    public NlpWords() throws IOException, URISyntaxException, MaltChainedException, NlpParseException {
+    public NlpController() throws IOException, URISyntaxException, MaltChainedException, NlpParseException {
         this.texterra = new Texterra();
         this.morphAnalyzer = new TreeTaggerMorphAnalyzer();
         this.syntaxAnalyzer = new SyntaxAnalyzer(morphAnalyzer);
@@ -37,10 +36,10 @@ public class NlpWords {
         setSentence(new NlpSentence(""));
     }
 
-    public NlpWords(Texterra texterra,
-                    TreeTaggerMorphAnalyzer morphAnalyzer,
-                    SyntaxAnalyzer syntaxAnalyzer,
-                    RelationshipAnalyzer relationshipAnalyzer) throws IOException, NlpParseException {
+    public NlpController(Texterra texterra,
+                         TreeTaggerMorphAnalyzer morphAnalyzer,
+                         SyntaxAnalyzer syntaxAnalyzer,
+                         RelationshipAnalyzer relationshipAnalyzer) throws IOException, NlpParseException {
         this.texterra = texterra;
         this.morphAnalyzer = morphAnalyzer;
         this.syntaxAnalyzer = syntaxAnalyzer;

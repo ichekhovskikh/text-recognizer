@@ -3,7 +3,6 @@ package nlp.analyzers;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import nlp.NlpSentence;
-import nlp.NlpUtils;
 import nlp.words.MorphWord;
 import nlp.words.RelationWord;
 
