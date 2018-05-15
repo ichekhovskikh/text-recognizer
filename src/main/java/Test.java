@@ -14,7 +14,9 @@ import ru.stachek66.nlp.mystem.holding.MyStemApplicationException;
 import nlp.texterra.NamedAnnotationEntity;
 import nlp.texterra.Texterra;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.List;
 

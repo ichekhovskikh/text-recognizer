@@ -14,6 +14,7 @@ import retrofit2.*;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,7 @@ public class Texterra {
     private Gson parser = null;
 
     public Texterra() {
+        TexterraServer.start();
         parser = new GsonBuilder().create();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://localhost:8082/texterra/")
@@ -35,11 +37,21 @@ public class Texterra {
     }
 
     public List<NamedAnnotationEntity> getNamedAnnotationEntities(List<String> texts) throws IOException {
-        String bodyJson = parser.toJson(getRequestList(texts));
-        RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), bodyJson);
-        Call<ResponseBody> call = texterraApi.getFromNLP("named-entity", body);
-        retrofit2.Response<ResponseBody> response = call.execute();
-        return parser.fromJson(CharStreams.toString(response.body().charStream()), new TypeToken<List<NamedAnnotationEntity>>(){}.getType());
+        int times = 5;
+        List<NamedAnnotationEntity> entities = null;
+        while (entities == null && times > 0) {
+            try {
+                String bodyJson = parser.toJson(getRequestList(texts));
+                RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), bodyJson);
+                Call<ResponseBody> call = texterraApi.getFromNLP("named-entity", body);
+                retrofit2.Response<ResponseBody> response = call.execute();
+                entities = parser.fromJson(CharStreams.toString(response.body().charStream()), new TypeToken<List<NamedAnnotationEntity>>(){}.getType());
+                times--;
+            } catch (SocketTimeoutException e) {
+                e.printStackTrace();
+            }
+        }
+        return entities;
     }
 
     private List<RequestText> getRequestList(List<String> texts) {
