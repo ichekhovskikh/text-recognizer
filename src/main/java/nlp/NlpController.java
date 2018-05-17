@@ -1,6 +1,5 @@
 package nlp;
 
-import com.sun.deploy.trace.LoggerTraceListener;
 import logging.Logger;
 import nlp.analyzers.NlpParseException;
 import nlp.analyzers.RelationshipAnalyzer;

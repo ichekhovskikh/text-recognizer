@@ -8,4 +8,4 @@
 ### Texterra
 ***Бинарный пакет сервера Texterra:*** [texterra-russian.zip](https://at.ispras.ru/owncloud/index.php/s/Jkgrw6iIInwfKFv/download)
 
-Требуется распаковать архив в папку с проектом (%ПРОЕКТ%/texterra-russuan)
+Требуется распаковать архив в папку с проектом (%ПРОЕКТ%/texterra-russian)
