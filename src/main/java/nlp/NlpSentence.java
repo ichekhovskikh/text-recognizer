@@ -33,4 +33,9 @@ public class NlpSentence {
         tokens.removeIf(elem -> elem == null || elem.equals(""));
         return tokens;
     }
+
+    @Override
+    public String toString() {
+        return text;
+    }
 }

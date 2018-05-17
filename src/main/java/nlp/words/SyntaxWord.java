@@ -48,4 +48,9 @@ public class SyntaxWord implements InfoWord {
     public void setLabel(String label) {
         this.label = label;
     }
+
+    @Override
+    public String toString() {
+        return index + " " + text + " " + headIndex + " " + label;
+    }
 }

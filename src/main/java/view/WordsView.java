@@ -17,7 +17,7 @@ public class WordsView {
 
         frame = new JFrame("Найденные отношения");
         DefaultTableModel model = new DefaultTableModel(new Object[10][3],
-                new String[]{"Субъект", "Свойство", "Объект"});
+                new String[]{"Субъект", "Отношение", "Объект"});
         table = new JTable(model);
 
         panel.add(new JScrollPane(table));

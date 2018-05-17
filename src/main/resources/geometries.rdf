@@ -22,7 +22,7 @@
   <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#inside"/>
   <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#crosses"/>
   <owl:ObjectProperty rdf:about="http://www.opengis.net/ont/geosparql#equals"/>
-  <j.1:CITY rdf:about="http://www.opengis.net/ont/sf#ОРЕНБУРГ">
+  <j.1:CITY rdf:about="http://www.opengis.net/ont/sf#ЕКАТЕРИНБУРГ">
     <j.0:inside>
       <j.1:COUNTRY rdf:about="http://www.opengis.net/ont/sf#РОССИЯ">
         <j.0:contains>
@@ -30,5 +30,11 @@
         </j.0:contains>
       </j.1:COUNTRY>
     </j.0:inside>
+  </j.1:CITY>
+  <j.1:CITY rdf:about="http://www.opengis.net/ont/sf#ОРЕНБУРГ">
+    <j.0:inside rdf:resource="http://www.opengis.net/ont/sf#РОССИЯ"/>
+  </j.1:CITY>
+  <j.1:CITY rdf:about="http://www.opengis.net/ont/sf#СМОЛЕНСК">
+    <j.0:inside rdf:resource="http://www.opengis.net/ont/sf#РОССИЯ"/>
   </j.1:CITY>
 </rdf:RDF>

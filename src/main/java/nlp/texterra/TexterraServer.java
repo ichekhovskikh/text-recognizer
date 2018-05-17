@@ -5,6 +5,8 @@ import java.io.IOException;
 public class TexterraServer {
     private static Boolean isStarted = false;
 
+    private TexterraServer() {}
+
     public static void start() {
         if (isStarted)
             return;

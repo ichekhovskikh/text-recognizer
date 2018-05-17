@@ -1,3 +1,4 @@
+import logging.Logger;
 import nlp.NlpController;
 import nlp.analyzers.NlpParseException;
 import nlp.texterra.TexterraServer;
@@ -11,8 +12,12 @@ import java.net.URISyntaxException;
 public class Runner {
     public static void main(String[] args) throws URISyntaxException, MaltChainedException, NlpParseException, IOException {
         TexterraServer.start();
+
+        Logger.setStream(System.out);
+        Logger.setStatus(true);
+
         NlpController nlpController = new NlpController();
-        OntologyController controller = new OntologyController();
-        TextView view = new TextView(controller, nlpController);
+        OntologyController ontologyController = new OntologyController();
+        TextView view = new TextView(ontologyController, nlpController);
     }
 }

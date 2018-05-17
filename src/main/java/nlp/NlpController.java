@@ -1,5 +1,7 @@
 package nlp;
 
+import com.sun.deploy.trace.LoggerTraceListener;
+import logging.Logger;
 import nlp.analyzers.NlpParseException;
 import nlp.analyzers.RelationshipAnalyzer;
 import nlp.analyzers.SyntaxAnalyzer;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class NlpController {
     private NlpSentence sentence;
@@ -53,11 +56,24 @@ public class NlpController {
 
     public void setSentence(NlpSentence sentence) throws IOException, NlpParseException {
         this.sentence = sentence;
+        Logger.logging("Предложение = " + sentence);
         List<NamedAnnotationEntity> entities = texterra.getNamedAnnotationEntities(sentence.getText());
+
         morphWords = morphAnalyzer.parse(sentence);
+        Logger.logging("Морфологический анализ = " +
+                morphWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
+
         syntaxWords = syntaxAnalyzer.parse(sentence);
+        Logger.logging("Синтаксический анализ = " +
+                syntaxWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
+
         namedWords = NlpUtils.transformNamedAnnotationsEntity(sentence, entities, syntaxWords);
+        Logger.logging("Именнованнные слова = " +
+                namedWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
+
         relationWords = relationshipAnalyzer.parse(sentence);
+        Logger.logging("Отношения = " +
+                relationWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
     }
 
     public SyntaxWord getSyntaxWord(int index) {
@@ -149,7 +165,9 @@ public class NlpController {
         for (NamedWord namedWord : namedWords) {
             int parentNamedWordIndex = getParentNamedWordIndex(namedWord);
             SyntaxWord syntaxWord = getSyntaxWord(parentNamedWordIndex);
-            if (relationWord.getIndexes().contains(syntaxWord.getHeadIndex()) && !syntaxWord.getLabel().equals("предик")){
+            if (syntaxWord.getLabel().equals("предл"))
+                syntaxWord = getSyntaxWord(syntaxWord.getHeadIndex());
+            if (!syntaxWord.getLabel().equals("предик") && relationWord.getIndexes().contains(syntaxWord.getHeadIndex())) {
                 quasiagents.add(namedWord);
             }
         }

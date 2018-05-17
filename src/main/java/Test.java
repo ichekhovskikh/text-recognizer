@@ -23,7 +23,8 @@ import java.util.List;
 public class Test {
 
     public static void main(String[] args) throws MaltChainedException, IOException, URISyntaxException, MyStemApplicationException, TreeTaggerException, NlpParseException {
-        testAdjectiveEnd();
+//        testAdjectiveEnd();
+        testSyntax();
     }
 
     private static void testAdjectiveEnd() throws IOException, URISyntaxException, NlpParseException, MaltChainedException {
@@ -106,7 +107,7 @@ public class Test {
         List<SyntaxWord> syntaxWords = syntaxAnalyzer.parse(nlpSentence);
 
         for (SyntaxWord syntaxWord : syntaxWords)
-            System.out.println(syntaxWord.getText() + " - " + syntaxWord.getHeadIndex() + " - " + syntaxWord.getLabel());
+            System.out.println(syntaxWord.getIndex() + ") " + syntaxWord.getText() + " - " + syntaxWord.getHeadIndex() + " - " + syntaxWord.getLabel());
     }
 
     private static void test() throws MaltChainedException, IOException, URISyntaxException, MyStemApplicationException, TreeTaggerException, NlpParseException {

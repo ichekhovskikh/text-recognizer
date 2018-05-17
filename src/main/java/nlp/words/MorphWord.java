@@ -81,6 +81,11 @@ public class MorphWord implements InfoWord {
         }
     }
 
+    @Override
+    public String toString() {
+        return index + " " + text + " " + initial + " " + tag + " " + feats + " " + category;
+    }
+
     public enum Category {
         N_NOUN,
         V_VERB,

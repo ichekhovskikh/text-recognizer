@@ -82,4 +82,9 @@ public class NamedWord implements InfoWord, Cloneable {
         word.namedTag = namedTag;
         return word;
     }
+
+    @Override
+    public String toString() {
+        return text + " " + namedTag;
+    }
 }

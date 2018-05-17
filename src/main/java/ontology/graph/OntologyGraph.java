@@ -46,8 +46,8 @@ public class OntologyGraph {
         try {
             searchedVertex = graph.getVertices()
                     .stream()
-                    .findFirst()
                     .filter(elem -> elem.equals(vertex))
+                    .findFirst()
                     .get();
         } catch (NoSuchElementException e){
             searchedVertex = null;
