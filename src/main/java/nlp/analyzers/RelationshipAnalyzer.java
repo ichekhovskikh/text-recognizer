@@ -60,7 +60,7 @@ public class RelationshipAnalyzer implements NlpAnalyzer<RelationWord> {
             }
             if (!equalsWord.IsEmpty()) {
                 words.add(equalsWord);
-                i += equalsWord.getIndexes().size();
+                i += equalsWord.getIndexes().size() - 1;
             }
         }
         return words;
