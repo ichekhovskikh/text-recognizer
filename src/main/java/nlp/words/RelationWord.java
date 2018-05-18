@@ -60,6 +60,10 @@ public class RelationWord implements InfoWord {
         this.type = type;
     }
 
+    public Boolean IsEmpty() {
+        return indexes.size() == 0;
+    }
+
     @Override
     public String toString() {
         return text + " " + type;

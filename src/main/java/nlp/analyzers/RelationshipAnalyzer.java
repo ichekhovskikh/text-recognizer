@@ -42,17 +42,25 @@ public class RelationshipAnalyzer implements NlpAnalyzer<RelationWord> {
         List<RelationWord> words = new ArrayList<>();
         List<String> keys = model.getKeys();
         for (int i = 0; i < morphWords.size(); i++) {
+            RelationWord equalsWord = new RelationWord();
             for (String key : keys) {
                 for (String value : model.getValues(key)) {
                     List<String> valueWords = Lists.transform(
                             morphAnalyzer.parse(new NlpSentence(value)), elem -> elem.getInitial());
                     //String[] valueWords = value.split(" ");
-                    List<Integer> indexes = getIndexes(valueWords, morphWords, i);
-                    if (indexes != null) {
-                        words.add(new RelationWord(indexes, value, key));
-                        i += indexes.size();
+                    if (valueWords.size() > equalsWord.getIndexes().size()) {
+                        List<Integer> indexes = getIndexes(valueWords, morphWords, i);
+                        if (indexes != null) {
+                            equalsWord.setIndexes(indexes);
+                            equalsWord.setText(value);
+                            equalsWord.setType(key);
+                        }
                     }
                 }
+            }
+            if (!equalsWord.IsEmpty()) {
+                words.add(equalsWord);
+                i += equalsWord.getIndexes().size();
             }
         }
         return words;

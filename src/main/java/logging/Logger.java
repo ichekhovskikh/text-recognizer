@@ -24,6 +24,6 @@ public class Logger {
     public static void logging(String log) {
         if (!isEnabled || out == null)
             return;
-        out.println(log + "\n\n");
+        out.println(log + "\n");
     }
 }
