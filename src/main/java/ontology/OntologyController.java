@@ -17,17 +17,23 @@ public class OntologyController {
     private final String SOURCE;
     private final String INDIVIDUAL_PATH;
     private final String OBJECT_PROPERTY_PATH;
+    private final String FILE_PATH;
 
     public OntologyController() {
-        this("http://www.opengis.net/ont/",
-                OntologyModelFactory.createOntModel());
+        this("http://www.opengis.net/ont/", OntologyModelFactory.DEFAULT_PATH_ONTOLOGY);
     }
 
-    public OntologyController(String source, OntModel model) {
+    public OntologyController(String path) {
+        this("http://www.opengis.net/ont/", path);
+    }
+
+    public OntologyController(String source, String path) {
+        OntModel model = OntologyModelFactory.createOntModel(path);
         this.model = model;
         this.SOURCE = source;
         INDIVIDUAL_PATH = source + "sf#";
         OBJECT_PROPERTY_PATH = source + "geosparql#";
+        FILE_PATH = path;
     }
 
     public String getSource() {
@@ -51,9 +57,19 @@ public class OntologyController {
         return model.getObjectProperty(OBJECT_PROPERTY_PATH + objectPropertyName);
     }
 
+    public OntClass createOntClass(String className) {
+        return model.createClass(INDIVIDUAL_PATH + className);
+    }
+
+    public ObjectProperty createObjectProperty(String propertyName) {
+        return model.createObjectProperty(OBJECT_PROPERTY_PATH + propertyName);
+    }
+
     public Individual addIndividual(String individualName, String className) {
         individualName = individualName.toUpperCase();
         OntClass classOfIndividual = model.getOntClass(INDIVIDUAL_PATH + className);
+        if (classOfIndividual == null)
+            classOfIndividual = createOntClass(className);
         return classOfIndividual.createIndividual(INDIVIDUAL_PATH + individualName);
     }
 
@@ -64,6 +80,8 @@ public class OntologyController {
     public void addIndividualProperty(String subjectName, String objectName, String propertyName) {
         Individual subject = getIndividual(subjectName);
         ObjectProperty property = getObjectProperty(propertyName);
+        if (property == null)
+            property = createObjectProperty(propertyName);
         Individual object = getIndividual(objectName);
         model.add(subject, property, object);
     }
@@ -71,7 +89,9 @@ public class OntologyController {
     public void commit() {
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter("src\\main\\resources\\" + OntologyModelFactory.PATH_ONTOLOGY);
+            String path = FILE_PATH.equals(OntologyModelFactory.DEFAULT_PATH_ONTOLOGY) ?
+                    "src\\main\\resources\\" + FILE_PATH : FILE_PATH;
+            writer = new PrintWriter(path);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }

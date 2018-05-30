@@ -20,6 +20,7 @@ public class NlpController {
     private NlpSentence sentence;
 
     private Texterra texterra;
+
     private TreeTaggerMorphAnalyzer morphAnalyzer;
     private SyntaxAnalyzer syntaxAnalyzer;
     RelationshipAnalyzer relationshipAnalyzer;
@@ -47,6 +48,39 @@ public class NlpController {
         this.syntaxAnalyzer = syntaxAnalyzer;
         this.relationshipAnalyzer = relationshipAnalyzer;
         setSentence(new NlpSentence(""));
+    }
+
+    public TreeTaggerMorphAnalyzer getMorphAnalyzer() {
+        return morphAnalyzer;
+    }
+
+    public void setMorphAnalyzer(TreeTaggerMorphAnalyzer morphAnalyzer) throws IOException, NlpParseException {
+        morphWords = morphAnalyzer.parse(sentence);
+        Logger.logging("Морфологический анализ = " +
+                morphWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        this.morphAnalyzer = morphAnalyzer;
+    }
+
+    public SyntaxAnalyzer getSyntaxAnalyzer() {
+        return syntaxAnalyzer;
+    }
+
+    public void setSyntaxAnalyzer(SyntaxAnalyzer syntaxAnalyzer) throws IOException, NlpParseException {
+        syntaxWords = syntaxAnalyzer.parse(sentence);
+        Logger.logging("Синтаксический анализ = " +
+                syntaxWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        this.syntaxAnalyzer = syntaxAnalyzer;
+    }
+
+    public RelationshipAnalyzer getRelationshipAnalyzer() {
+        return relationshipAnalyzer;
+    }
+
+    public void setRelationshipAnalyzer(RelationshipAnalyzer relationshipAnalyzer) throws IOException, NlpParseException {
+        relationWords = relationshipAnalyzer.parse(sentence);
+        Logger.logging("Отношения = " +
+                relationWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        this.relationshipAnalyzer = relationshipAnalyzer;
     }
 
     public NlpSentence getSentence() {

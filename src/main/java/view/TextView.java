@@ -6,15 +6,23 @@ import nlp.NlpText;
 import nlp.NlpUtils;
 import nlp.NlpController;
 import nlp.analyzers.NlpParseException;
+import nlp.analyzers.RelationshipAnalyzer;
+import nlp.analyzers.SyntaxAnalyzer;
+import nlp.analyzers.TreeTaggerMorphAnalyzer;
 import nlp.words.NamedWord;
 import nlp.words.RelationWord;
 import ontology.OntologyController;
+import ontology.OntologyModelFactory;
 import ontology.graph.GraphVisualizer;
 import ontology.graph.OntologyGraph;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -49,6 +57,9 @@ public class TextView {
     }
 
     private void initComponents(Font font) {
+        frame = new JFrame("Распознование текста");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -66,7 +77,7 @@ public class TextView {
         JPanel grid = new JPanel(new GridLayout(1, 3, 5, 0));
         btnStart = new JButton("Обработать");
         btnAdd = new JButton("Добавить в онтологию");
-        btnShow = new JButton("Построить онтологию");
+        btnShow = new JButton("Показать онтологию");
         btnStart.addActionListener(new StartAction());
         btnAdd.addActionListener(new AddAction());
         btnShow.addActionListener(new ShowAction());
@@ -83,11 +94,70 @@ public class TextView {
 
         setFont(font);
 
-        frame = new JFrame("Распознование текста");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        initMenu(font);
+
         frame.getContentPane().add(panel);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    private void initMenu(Font font){
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu fileMenu = new JMenu("Файл");
+        fileMenu.setFont(font);
+
+        JMenuItem helpMenu = new JMenuItem("О программе");
+        helpMenu.addActionListener(e -> JOptionPane.showMessageDialog(frame,
+                "Автоматизированная система построения онтологии взаимного расположения\n" +
+                        "геометрических объектов на основе их текстового описания\n" +
+                        "Группа: 6401-090301D\n" +
+                        "Студент: И.В. Чеховских\n" +
+                        "Руководитель ВКР: Е.В. Симонова",
+                "О программе", JOptionPane.INFORMATION_MESSAGE));
+        helpMenu.setFont(font);
+
+        JMenuItem newItem = new JMenuItem("Новый файл с онтологией");
+        newItem.addActionListener(new NewOntologyAction());
+        newItem.setFont(font);
+        fileMenu.add(newItem);
+
+        JMenuItem openItem = new JMenuItem("Выбрать файл с онтологией");
+        openItem.addActionListener(new OpenOntologyAction());
+        openItem.setFont(font);
+        fileMenu.add(openItem);
+
+        JMenu openDictionaryMenu = new JMenu("Выбрать словарь");
+        openDictionaryMenu.setFont(font);
+        fileMenu.add(openDictionaryMenu);
+
+        JMenuItem openMorphItem = new JMenuItem("Морфологический");
+        openMorphItem.addActionListener(new OpenMorphAction());
+        openMorphItem.setFont(font);
+        openDictionaryMenu.add(openMorphItem);
+
+        JMenuItem openSyntaxItem = new JMenuItem("Синтаксический");
+        openSyntaxItem.addActionListener(new OpenSyntaxAction());
+        openSyntaxItem.setFont(font);
+        openDictionaryMenu.add(openSyntaxItem);
+
+        JMenuItem openRelationItem = new JMenuItem("Отношений");
+        openRelationItem.addActionListener(new OpenRelationAction());
+        openRelationItem.setFont(font);
+        openDictionaryMenu.add(openRelationItem);
+
+        fileMenu.addSeparator();
+
+        JMenuItem exitItem = new JMenuItem("Выход");
+        exitItem.addActionListener(e -> System.exit(0));
+        exitItem.setFont(font);
+
+        fileMenu.add(exitItem);
+
+        menuBar.add(fileMenu);
+        menuBar.add(helpMenu);
+
+        frame.setJMenuBar(menuBar);
     }
 
     private class StartAction extends AbstractAction {
@@ -173,6 +243,126 @@ public class TextView {
             visualizer.setPosition(Renderer.VertexLabel.Position.CNTR);
             //visualizer.addVertexFillPaint();
             GraphView graphView = new GraphView(visualizer);
+        }
+    }
+
+    private class NewOntologyAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            final String FILE_EXTENSION = "rdf";
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "rdf", FILE_EXTENSION);
+            chooser.setFileFilter(filter);
+            if (chooser.showDialog(null, "Открыть файл") == JFileChooser.APPROVE_OPTION) {
+                String path = chooser.getSelectedFile().getAbsolutePath() + "." + FILE_EXTENSION;
+                try {
+                    FileWriter writer = new FileWriter(path, false);
+                    writer.write(OntologyModelFactory.InitialOntologyText());
+                    writer.close();
+                    ontologyController = new OntologyController(path);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Не удалось открыть онтологию [" + ex.getMessage() + "]!",
+                            "Ошибка", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        }
+    }
+
+    private class OpenOntologyAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "rdf", "rdf");
+            chooser.setFileFilter(filter);
+            if (chooser.showDialog(null, "Открыть файл") == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                try {
+                    ontologyController = new OntologyController(file.getAbsolutePath());
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Не удалось открыть онтологию [" + ex.getMessage() + "]!",
+                            "Ошибка", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        }
+    }
+
+    private class OpenMorphAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "par", "par");
+            chooser.setFileFilter(filter);
+            if (chooser.showDialog(null, "Выбрать словарь") == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                try {
+                    TreeTaggerMorphAnalyzer morphAnalyzer = new TreeTaggerMorphAnalyzer(file.getAbsolutePath());
+                    nlpController.setMorphAnalyzer(morphAnalyzer);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Не удалось выбрать морфологический словарь [" + ex.getMessage() + "]!",
+                            "Ошибка", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        }
+    }
+
+    private class OpenSyntaxAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "mco", "mco");
+            chooser.setFileFilter(filter);
+            if (chooser.showDialog(null, "Выбрать словарь") == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                try {
+                    SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(
+                            nlpController.getMorphAnalyzer(),
+                            file.getAbsolutePath());
+                    nlpController.setSyntaxAnalyzer(syntaxAnalyzer);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Не удалось выбрать синтаксический словарь [" + ex.getMessage() + "]!",
+                            "Ошибка", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        }
+    }
+
+    private class OpenRelationAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "rel", "rel");
+            chooser.setFileFilter(filter);
+            if (chooser.showDialog(null, "Выбрать словарь") == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                try {
+                    RelationshipAnalyzer relationshipAnalyzer = new RelationshipAnalyzer(
+                            file.getAbsolutePath());
+                    nlpController.setRelationshipAnalyzer(relationshipAnalyzer);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Не удалось выбрать словарь отношений [" + ex.getMessage() + "]!",
+                            "Ошибка", JOptionPane.WARNING_MESSAGE);
+                }
+            }
         }
     }
 }
