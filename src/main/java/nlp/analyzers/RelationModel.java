@@ -15,14 +15,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RelationshipModel {
+public class RelationModel {
     private Map<String, List<String>> relations = null;
 
-    public RelationshipModel(){
+    public RelationModel(){
         relations = new HashMap<>();
     }
 
-    public RelationshipModel(String path) throws IOException, URISyntaxException {
+    public RelationModel(String path) throws IOException, URISyntaxException {
         Path relPath = new File(getClass()
                 .getClassLoader()
                 .getResource(path)
@@ -32,7 +32,7 @@ public class RelationshipModel {
         StringBuilder jsonModel = new StringBuilder();
         for (String line : lines)
             jsonModel.append(line).append(" ");
-        relations = new Gson().fromJson(jsonModel.toString(), RelationshipModel.class).relations;
+        relations = new Gson().fromJson(jsonModel.toString(), RelationModel.class).relations;
     }
 
     @SerializedName("relations")
@@ -50,6 +50,11 @@ public class RelationshipModel {
         if (relations.containsKey(key))
             relations.get(key).add(value);
         else relations.put(key, Lists.newArrayList(value));
+    }
+
+    @Transient
+    public void putRelations(String key, List<String> values) {
+        relations.put(key, values);
     }
 
     @Transient

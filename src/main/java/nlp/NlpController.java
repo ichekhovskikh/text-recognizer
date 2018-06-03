@@ -1,18 +1,21 @@
 package nlp;
 
+import com.google.common.collect.Lists;
 import logging.Logger;
 import nlp.analyzers.NlpParseException;
-import nlp.analyzers.RelationshipAnalyzer;
+import nlp.analyzers.RelationAnalyzer;
 import nlp.analyzers.SyntaxAnalyzer;
 import nlp.analyzers.TreeTaggerMorphAnalyzer;
 import nlp.texterra.NamedAnnotationEntity;
 import nlp.texterra.Texterra;
+import nlp.tree.NlpTreeDependency;
+import nlp.tree.NlpTreeObject;
+import nlp.tree.NlpTreeRelation;
 import nlp.words.*;
 import org.maltparser.core.exception.MaltChainedException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,34 +23,44 @@ public class NlpController {
     private NlpSentence sentence;
 
     private Texterra texterra;
+    private NlpTreeDependency nlpTreeDependency;
 
     private TreeTaggerMorphAnalyzer morphAnalyzer;
     private SyntaxAnalyzer syntaxAnalyzer;
-    RelationshipAnalyzer relationshipAnalyzer;
+    private RelationAnalyzer relationAnalyzer;
 
     private List<MorphWord> morphWords;
     private List<SyntaxWord> syntaxWords;
     private List<NamedWord> namedWords;
-    List<RelationWord> relationWords;
+    private List<RelationWord> relationWords;
 
 
     public NlpController() throws IOException, URISyntaxException, MaltChainedException, NlpParseException {
         this.texterra = new Texterra();
         this.morphAnalyzer = new TreeTaggerMorphAnalyzer();
         this.syntaxAnalyzer = new SyntaxAnalyzer(morphAnalyzer);
-        this.relationshipAnalyzer = new RelationshipAnalyzer();
+        this.relationAnalyzer = new RelationAnalyzer();
+        this.nlpTreeDependency = new NlpTreeDependency();
         setSentence(new NlpSentence(""));
     }
 
     public NlpController(Texterra texterra,
                          TreeTaggerMorphAnalyzer morphAnalyzer,
                          SyntaxAnalyzer syntaxAnalyzer,
-                         RelationshipAnalyzer relationshipAnalyzer) throws IOException, NlpParseException {
+                         RelationAnalyzer relationAnalyzer) throws IOException, NlpParseException {
         this.texterra = texterra;
         this.morphAnalyzer = morphAnalyzer;
         this.syntaxAnalyzer = syntaxAnalyzer;
-        this.relationshipAnalyzer = relationshipAnalyzer;
+        this.relationAnalyzer = relationAnalyzer;
         setSentence(new NlpSentence(""));
+    }
+
+    public NlpTreeDependency getNlpTreeDependency() {
+        return nlpTreeDependency;
+    }
+
+    public void setNlpTreeDependency(NlpTreeDependency nlpTreeDependency) {
+        this.nlpTreeDependency = nlpTreeDependency;
     }
 
     public TreeTaggerMorphAnalyzer getMorphAnalyzer() {
@@ -72,23 +85,26 @@ public class NlpController {
         this.syntaxAnalyzer = syntaxAnalyzer;
     }
 
-    public RelationshipAnalyzer getRelationshipAnalyzer() {
-        return relationshipAnalyzer;
+    public RelationAnalyzer getRelationAnalyzer() {
+        return relationAnalyzer;
     }
 
-    public void setRelationshipAnalyzer(RelationshipAnalyzer relationshipAnalyzer) throws IOException, NlpParseException {
-        relationWords = relationshipAnalyzer.parse(sentence);
+    public void setRelationAnalyzer(RelationAnalyzer relationAnalyzer) throws IOException, NlpParseException {
+        relationWords = relationAnalyzer.parse(sentence);
         Logger.logging("Отношения = " +
                 relationWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
-        this.relationshipAnalyzer = relationshipAnalyzer;
+        this.relationAnalyzer = relationAnalyzer;
     }
 
     public NlpSentence getSentence() {
         return sentence;
     }
 
-    public void setSentence(NlpSentence sentence) throws IOException, NlpParseException {
+    public void setSentence(NlpSentence sentence) {
         this.sentence = sentence;
+    }
+
+    public void process() throws IOException, NlpParseException {
         Logger.logging("Предложение = " + sentence);
         List<NamedAnnotationEntity> entities = texterra.getNamedAnnotationEntities(sentence.getText());
 
@@ -104,9 +120,20 @@ public class NlpController {
         Logger.logging("Именнованнные слова = " +
                 namedWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
 
-        relationWords = relationshipAnalyzer.parse(sentence);
+        relationWords = relationAnalyzer.parse(sentence);
         Logger.logging("Отношения = " +
                 relationWords.stream().map(Object::toString).collect(Collectors.joining(", ")));
+
+        List<NlpTreeObject> nlpTreeObjects = Lists.transform(namedWords, elem -> new NlpTreeObject(
+                NlpUtils.wordMatching(elem.getIndexes(), syntaxWords, morphWords),
+                NlpUtils.getClassName(elem.getNamedTag())));
+
+        List<NlpTreeRelation> nlpTreeRelations = Lists.transform(relationWords,
+                elem -> new NlpTreeRelation(elem.getType()));
+
+        nlpTreeDependency.addAllObjects(nlpTreeObjects);
+        nlpTreeDependency.addAllRelations(nlpTreeRelations);
+        rebuildNlpTree();
     }
 
     public SyntaxWord getSyntaxWord(int index) {
@@ -157,70 +184,62 @@ public class NlpController {
         return relationWords;
     }
 
-    public int getParentNamedWordIndex(int namedWordIndex) {
-        return getParentNamedWordIndex(getNamedWord(namedWordIndex));
+    public int getHeadNamedWordIndex(int namedWordIndex) {
+        return getHeadNamedWordIndex(getNamedWord(namedWordIndex));
     }
 
-    public int getParentRelationWordIndex(int relationWordIndex) {
-        return getParentRelationWordIndex(getRelationWord(relationWordIndex));
+    public int getHeadRelationWordIndex(int relationWordIndex) {
+        return getHeadRelationWordIndex(getRelationWord(relationWordIndex));
     }
 
-    public int getParentNamedWordIndex(NamedWord namedWord) {
-        return getParentWordIndex(syntaxWords, namedWord.getIndexes());
+    public int getHeadNamedWordIndex(NamedWord namedWord) {
+        return getHeadWordIndex(syntaxWords, namedWord.getIndexes());
     }
 
-    public int getParentRelationWordIndex(RelationWord relationWord) {
-        return getParentWordIndex(syntaxWords, relationWord.getIndexes());
+    public int getHeadRelationWordIndex(RelationWord relationWord) {
+        return getHeadWordIndex(syntaxWords, relationWord.getIndexes());
     }
 
-    public List<NamedWord> getParentRelationship(int relationWordIndex) {
-        return getParentRelationship(getRelationWord(relationWordIndex));
-    }
+    private void rebuildNlpTree() {
+        for (RelationWord relationWord : relationWords) {
+            NlpTreeRelation relation = new NlpTreeRelation(relationWord.getType());
+            for (NamedWord namedWord : namedWords) {
+                int headNamedWordIndex = getHeadNamedWordIndex(namedWord);
+                SyntaxWord syntaxWord = getSyntaxWord(headNamedWordIndex);
 
-    public List<NamedWord> getParentRelationship(RelationWord relationWord) {
-        List<NamedWord> predicates = new ArrayList<>();
-        for (NamedWord namedWord : namedWords) {
-            int parentNamedWordIndex = getParentNamedWordIndex(namedWord);
-            SyntaxWord syntaxWord = getSyntaxWord(parentNamedWordIndex);
-            if (relationWord.getIndexes().contains(syntaxWord.getHeadIndex()) && syntaxWord.getLabel().equals("предик")){
-                predicates.add(namedWord);
+                if (relationWord.getIndexes().contains(syntaxWord.getHeadIndex()) && syntaxWord.getLabel().equals("предик")) {
+                    NlpTreeObject object = new NlpTreeObject(
+                            NlpUtils.wordMatching(namedWord.getIndexes(), syntaxWords, morphWords),
+                            NlpUtils.getClassName(namedWord.getNamedTag()));
+                    nlpTreeDependency.addDependency(object, relation);
+                } else {
+                    syntaxWord = syntaxWord.getLabel().equals("предл") ?
+                            getSyntaxWord(syntaxWord.getHeadIndex()) : syntaxWord;
+                    if (!syntaxWord.getLabel().equals("предик") && relationWord.getIndexes().contains(syntaxWord.getHeadIndex())) {
+                        NlpTreeObject object = new NlpTreeObject(
+                                NlpUtils.wordMatching(namedWord.getIndexes(), syntaxWords, morphWords),
+                                NlpUtils.getClassName(namedWord.getNamedTag()));
+                        nlpTreeDependency.addDependency(relation, object);
+                    }
+                }
             }
         }
-        return predicates;
     }
 
-    public List<NamedWord> getChildRelationship(int relationWordIndex) {
-        return getChildRelationship(getRelationWord(relationWordIndex));
-    }
-
-    public List<NamedWord> getChildRelationship(RelationWord relationWord) {
-        List<NamedWord> quasiagents = new ArrayList<>();
-        for (NamedWord namedWord : namedWords) {
-            int parentNamedWordIndex = getParentNamedWordIndex(namedWord);
-            SyntaxWord syntaxWord = getSyntaxWord(parentNamedWordIndex);
-            if (syntaxWord.getLabel().equals("предл"))
-                syntaxWord = getSyntaxWord(syntaxWord.getHeadIndex());
-            if (!syntaxWord.getLabel().equals("предик") && relationWord.getIndexes().contains(syntaxWord.getHeadIndex())) {
-                quasiagents.add(namedWord);
-            }
-        }
-        return quasiagents;
-    }
-
-    private int getParentWordIndex(List<SyntaxWord> syntaxWords, List<Integer> indexes) {
-        for (SyntaxWord parent : syntaxWords) {
-            if (!indexes.contains(parent.getIndex())) {
+    private int getHeadWordIndex(List<SyntaxWord> syntaxWords, List<Integer> indexes) {
+        for (SyntaxWord head : syntaxWords) {
+            if (!indexes.contains(head.getIndex())) {
                 continue;
             }
-            boolean isParent = true;
-            for (int i = 0; isParent && i < syntaxWords.size(); i++) {
-                SyntaxWord child = syntaxWords.get(i);
-                if (parent == child || !indexes.contains(child.getIndex())) {
+            boolean isHead = true;
+            for (int i = 0; isHead && i < syntaxWords.size(); i++) {
+                SyntaxWord dependent = syntaxWords.get(i);
+                if (head == dependent || !indexes.contains(dependent.getIndex())) {
                     continue;
                 }
-                isParent = (parent.getHeadIndex() != child.getIndex());
+                isHead = (head.getHeadIndex() != dependent.getIndex());
             }
-            if (isParent) return parent.getIndex();
+            if (isHead) return head.getIndex();
         }
         return -1;
     }

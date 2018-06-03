@@ -6,9 +6,11 @@ import nlp.NlpText;
 import nlp.NlpUtils;
 import nlp.NlpController;
 import nlp.analyzers.NlpParseException;
-import nlp.analyzers.RelationshipAnalyzer;
+import nlp.analyzers.RelationAnalyzer;
 import nlp.analyzers.SyntaxAnalyzer;
 import nlp.analyzers.TreeTaggerMorphAnalyzer;
+import nlp.tree.NlpTreeObject;
+import nlp.tree.NlpTreeRelation;
 import nlp.words.NamedWord;
 import nlp.words.RelationWord;
 import ontology.OntologyController;
@@ -20,7 +22,6 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -101,7 +102,7 @@ public class TextView {
         frame.setVisible(true);
     }
 
-    private void initMenu(Font font){
+    private void initMenu(Font font) {
         JMenuBar menuBar = new JMenuBar();
 
         JMenu fileMenu = new JMenu("Файл");
@@ -165,31 +166,28 @@ public class TextView {
         public void actionPerformed(ActionEvent e) {
             NlpText text = new NlpText(textArea.getText());
             wordsView.clearTable();
-            for (NlpSentence sentence : text.getAllSentences()) {
-                try {
+            nlpController.getNlpTreeDependency().clear();
+            try {
+                for (NlpSentence sentence : text.getAllSentences()) {
                     nlpController.setSentence(sentence);
-                } catch (IOException | NlpParseException ex) {
-                    JOptionPane.showMessageDialog(frame,
-                            "Не удалось обработать [" + ex.getMessage() + "]!",
-                            "Ошибка", JOptionPane.WARNING_MESSAGE);
+                    nlpController.process();
                 }
-                List<RelationWord> properties = nlpController.getRelationWords();
-                for (RelationWord property : properties) {
-                    List<NamedWord> subjects = nlpController.getParentRelationship(property);
-                    List<NamedWord> objects = nlpController.getChildRelationship(property);
-
-                    for (NamedWord subject : subjects) {
-                        for (NamedWord object : objects) {
-                            String subjectName = NlpUtils.wordMatching(subject.getIndexes(), nlpController.getSyntaxWords(), nlpController.getMorphWords());
-                            subjectName += " [" + NlpUtils.getLocalizeName(subject.getNamedTag()) + "]";
-
-                            String objectName = NlpUtils.wordMatching(object.getIndexes(), nlpController.getSyntaxWords(), nlpController.getMorphWords());
-                            objectName += " [" + NlpUtils.getLocalizeName(object.getNamedTag()) + "]";
-
-                            wordsView.addTableRow(subjectName.toUpperCase(),
-                                    NlpUtils.getLocalizeType(property.getType()).toUpperCase(),
-                                    objectName.toUpperCase());
-                        }
+            } catch (IOException | NlpParseException ex) {
+                JOptionPane.showMessageDialog(frame,
+                        "Не удалось обработать [" + ex.getMessage() + "]!",
+                        "Ошибка", JOptionPane.WARNING_MESSAGE);
+            }
+            List<NlpTreeRelation> properties = nlpController.getNlpTreeDependency().getRelations();
+            for (NlpTreeRelation property : properties) {
+                List<NlpTreeObject> subjects = property.getHeads();
+                List<NlpTreeObject> objects = property.getDependents();
+                for (NlpTreeObject subject : subjects) {
+                    for (NlpTreeObject object : objects) {
+                        String subjectName = subject.getText() + " [" + NlpUtils.getLocalizeName(subject.getTag()) + "]";
+                        String objectName = object.getText() + " [" + NlpUtils.getLocalizeName(object.getTag()) + "]";
+                        wordsView.addTableRow(subjectName.toUpperCase(),
+                                NlpUtils.getLocalizeType(property.getTag()).toUpperCase(),
+                                objectName.toUpperCase());
                     }
                 }
             }
@@ -201,32 +199,15 @@ public class TextView {
     private class AddAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            NlpText text = new NlpText(textArea.getText());
-            for (NlpSentence sentence : text.getAllSentences()) {
-                try {
-                    nlpController.setSentence(sentence);
-                } catch (IOException | NlpParseException ex) {
-                    JOptionPane.showMessageDialog(frame,
-                            "Не удалось построить онтологию [" + ex.getMessage() + "]!",
-                            "Ошибка", JOptionPane.WARNING_MESSAGE);
-                }
-                List<RelationWord> properties = nlpController.getRelationWords();
-                for (RelationWord property : properties) {
-                    List<NamedWord> subjects = nlpController.getParentRelationship(property);
-                    List<NamedWord> objects = nlpController.getChildRelationship(property);
-
-                    for (NamedWord subject : subjects) {
-                        for (NamedWord object : objects) {
-                            String subjectName = NlpUtils.wordMatching(subject.getIndexes(), nlpController.getSyntaxWords(), nlpController.getMorphWords());
-                            String subjectClassName = NlpUtils.getClassName(subject.getNamedTag());
-
-                            String objectName = NlpUtils.wordMatching(object.getIndexes(), nlpController.getSyntaxWords(), nlpController.getMorphWords());
-                            String objectClassName = NlpUtils.getClassName(object.getNamedTag());
-
-                            ontologyController.addIndividual(subjectName, subjectClassName);
-                            ontologyController.addIndividual(objectName, objectClassName);
-                            ontologyController.addIndividualProperty(subjectName, objectName, property.getType());
-                        }
+            List<NlpTreeRelation> properties = nlpController.getNlpTreeDependency().getRelations();
+            for (NlpTreeRelation property : properties) {
+                List<NlpTreeObject> subjects = property.getHeads();
+                List<NlpTreeObject> objects = property.getDependents();
+                for (NlpTreeObject subject : subjects) {
+                    for (NlpTreeObject object : objects) {
+                        ontologyController.addIndividual(subject.getText(), subject.getTag());
+                        ontologyController.addIndividual(object.getText(), object.getTag());
+                        ontologyController.addIndividualProperty(subject.getText(), object.getText(), property.getTag());
                     }
                 }
             }
@@ -241,7 +222,7 @@ public class TextView {
             GraphVisualizer visualizer = new GraphVisualizer(graph, new Dimension(1000, 1000));
             visualizer.addLabels();
             visualizer.setPosition(Renderer.VertexLabel.Position.CNTR);
-            //visualizer.addVertexFillPaint();
+            visualizer.addVertexFillPaint();
             GraphView graphView = new GraphView(visualizer);
         }
     }
@@ -354,9 +335,9 @@ public class TextView {
             if (chooser.showDialog(null, "Выбрать словарь") == JFileChooser.APPROVE_OPTION) {
                 File file = chooser.getSelectedFile();
                 try {
-                    RelationshipAnalyzer relationshipAnalyzer = new RelationshipAnalyzer(
+                    RelationAnalyzer relationAnalyzer = new RelationAnalyzer(
                             file.getAbsolutePath());
-                    nlpController.setRelationshipAnalyzer(relationshipAnalyzer);
+                    nlpController.setRelationAnalyzer(relationAnalyzer);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(frame,
                             "Не удалось выбрать словарь отношений [" + ex.getMessage() + "]!",

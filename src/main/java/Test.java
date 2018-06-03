@@ -1,4 +1,3 @@
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import nlp.NlpSentence;
 import nlp.NlpText;
@@ -14,9 +13,7 @@ import ru.stachek66.nlp.mystem.holding.MyStemApplicationException;
 import nlp.texterra.NamedAnnotationEntity;
 import nlp.texterra.Texterra;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -57,7 +54,7 @@ public class Test {
 
         TreeTaggerMorphAnalyzer morphAnalyzer = new TreeTaggerMorphAnalyzer();
         SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(morphAnalyzer);
-        RelationshipAnalyzer analyzer = new RelationshipAnalyzer();
+        RelationAnalyzer analyzer = new RelationAnalyzer();
 
         List<MorphWord> morphWords = morphAnalyzer.parse(nlpSentence);
         List<SyntaxWord> syntaxWords = syntaxAnalyzer.parse(nlpSentence);
@@ -65,9 +62,9 @@ public class Test {
         List<RelationWord> relationWords = analyzer.parse(nlpSentence);
 
         for (RelationWord word : relationWords) {
-            System.out.println(NlpUtils.getParentRelationship(word, syntaxWords, namedWords).get(0).getText() + "  "
+            System.out.println(NlpUtils.getHeadRelation(word, syntaxWords, namedWords).get(0).getText() + "  "
                     + word.getText() + "  "
-                    + NlpUtils.getChildRelationship(word, syntaxWords, namedWords).get(0).getText());
+                    + NlpUtils.getDependentRelation(word, syntaxWords, namedWords).get(0).getText());
         }
     }*/
 
@@ -76,7 +73,7 @@ public class Test {
         NlpText nlpText = new NlpText(text);
         NlpSentence nlpSentence = nlpText.getSentence(0);
 
-        RelationshipAnalyzer analyzer = new RelationshipAnalyzer();
+        RelationAnalyzer analyzer = new RelationAnalyzer();
         List<RelationWord> relationWords = analyzer.parse(nlpSentence);
 
         for (RelationWord word : relationWords)
@@ -84,7 +81,7 @@ public class Test {
     }
 
     private static void testJsonModel() {
-        RelationshipModel model = new RelationshipModel();
+        RelationModel model = new RelationModel();
 
         model.addRelation("contains", "содержит");
         model.addRelation("contains", "включает");

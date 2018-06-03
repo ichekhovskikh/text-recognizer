@@ -12,26 +12,39 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RelationshipAnalyzer implements NlpAnalyzer<RelationWord> {
-    private RelationshipModel model = null;
+public class RelationAnalyzer implements NlpAnalyzer<RelationWord> {
+    private RelationModel model = null;
     private TreeTaggerMorphAnalyzer morphAnalyzer;
 
-    public RelationshipAnalyzer() throws IOException, URISyntaxException {
+    public RelationAnalyzer() throws IOException, URISyntaxException, NlpParseException {
         this("russian.rel");
     }
 
-    public RelationshipAnalyzer(String modelPath) throws IOException, URISyntaxException {
+    public RelationAnalyzer(String modelPath) throws IOException, URISyntaxException, NlpParseException {
+        this.morphAnalyzer = new TreeTaggerMorphAnalyzer();
         setModel(modelPath);
-        this.morphAnalyzer = new TreeTaggerMorphAnalyzer();
     }
 
-    public RelationshipAnalyzer(RelationshipModel model) throws IOException {
+    public RelationAnalyzer(RelationModel model) throws IOException {
+        this.morphAnalyzer = new TreeTaggerMorphAnalyzer();
         this.model = model;
-        this.morphAnalyzer = new TreeTaggerMorphAnalyzer();
     }
 
-    public void setModel(String modelPath) throws IOException, URISyntaxException {
-        this.model = new RelationshipModel(modelPath);
+/*    public void setModel(String modelPath) throws IOException, URISyntaxException {
+        this.model = new RelationModel(modelPath);
+    }*/
+
+    public void setModel(String modelPath) throws IOException, URISyntaxException, NlpParseException {
+        this.model = new RelationModel(modelPath);
+        List<String> keys = model.getKeys();
+        for (String key : keys) {
+            List<String> values = new ArrayList<>();
+            for (String value : model.getValues(key)) {
+                values.add(String.join(" ", Lists.transform(
+                        morphAnalyzer.parse(new NlpSentence(value)), elem -> elem.getInitial())));
+            }
+            model.putRelations(key, values);
+        }
     }
 
     public List<RelationWord> parse(NlpSentence sentence) throws IOException, NlpParseException {
@@ -45,10 +58,10 @@ public class RelationshipAnalyzer implements NlpAnalyzer<RelationWord> {
             RelationWord equalsWord = new RelationWord();
             for (String key : keys) {
                 for (String value : model.getValues(key)) {
-                    List<String> valueWords = Lists.transform(
-                            morphAnalyzer.parse(new NlpSentence(value)), elem -> elem.getInitial());
-                    //String[] valueWords = value.split(" ");
-                    if (valueWords.size() > equalsWord.getIndexes().size()) {
+//                    List<String> valueWords = Lists.transform(
+//                            morphAnalyzer.parse(new NlpSentence(value)), elem -> elem.getInitial());
+                    String[] valueWords = value.split(" ");
+                    if (valueWords.length > equalsWord.getIndexes().size()) {
                         List<Integer> indexes = getIndexes(valueWords, morphWords, i);
                         if (indexes != null) {
                             equalsWord.setIndexes(indexes);
@@ -72,11 +85,11 @@ public class RelationshipAnalyzer implements NlpAnalyzer<RelationWord> {
         writer.close();
     }
 
-    private List<Integer> getIndexes(List<String> valueWords, List<MorphWord> morphWords, int morphIndex) {
+    private List<Integer> getIndexes(String[] valueWords, List<MorphWord> morphWords, int morphIndex) {
         List<Integer> indexes = new ArrayList<>();
-        for (int i = 0; i < valueWords.size(); i++) {
+        for (int i = 0; i < valueWords.length; i++) {
             MorphWord morphWord = morphWords.get(i + morphIndex);
-            if (!valueWords.get(i).toUpperCase().equals(morphWord.getInitial().toUpperCase()))
+            if (!valueWords[i].toUpperCase().equals(morphWord.getInitial().toUpperCase()))
                 return null;
             else indexes.add(morphWord.getIndex());
         }

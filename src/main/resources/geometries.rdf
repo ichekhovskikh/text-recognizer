@@ -37,4 +37,7 @@
   <j.1:CITY rdf:about="http://www.opengis.net/ont/sf#СМОЛЕНСК">
     <j.0:inside rdf:resource="http://www.opengis.net/ont/sf#РОССИЯ"/>
   </j.1:CITY>
+  <j.1:CITY rdf:about="http://www.opengis.net/ont/sf#МОСКВА">
+    <j.0:inside rdf:resource="http://www.opengis.net/ont/sf#РОССИЯ"/>
+  </j.1:CITY>
 </rdf:RDF>

@@ -206,6 +206,45 @@ public class NlpUtils {
         return name;
     }
 
+    public static String getLocalizeName(String tag){
+        String name;
+        switch (tag) {
+            case "COUNTRY": {
+                name = "СТРАНА";
+                break;
+            }
+            case "CITY": {
+                name = "ГОРОД";
+                break;
+            }
+            case "STATE_PROVINCE": {
+                name = "ГОСУДАРСТВЕННАЯ ПРОВИНЦИЯ";
+                break;
+            }
+            case "RIVER": {
+                name = "РЕКА";
+                break;
+            }
+            case "LAKE_SEA_OCEAN": {
+                name = "ОЗЕРО/МОРЕ/ОКЕАН";
+                break;
+            }
+            case "REGION": {
+                name = "РЕГИОН";
+                break;
+            }
+            case "CONTINENT": {
+                name = "КОНТИНЕНТ";
+                break;
+            }
+            default: {
+                name = "ПРОЧЕЕ";
+                break;
+            }
+        }
+        return name;
+    }
+
     public static String getLocalizeType(String type) {
         String localizeText = type;
         if (type.equals("coveredBy")) {
