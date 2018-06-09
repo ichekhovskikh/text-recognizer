@@ -12,8 +12,8 @@ public class NlpText {
     private List<NlpSentence> sentences = null;
 
     public NlpText(String text) {
-        this.text = text;
-        sentences = splitText(text);
+        this.text = text.trim();
+        sentences = splitText(this.text);
     }
 
     public String getText() {
@@ -50,6 +50,6 @@ public class NlpText {
         }
         if (sentences.size() == 1 && sentences.get(0).equals(""))
             sentences.set(0, text);
-        return Lists.transform(sentences, elem -> new NlpSentence(elem));
+        return Lists.transform(sentences, NlpSentence::new);
     }
 }

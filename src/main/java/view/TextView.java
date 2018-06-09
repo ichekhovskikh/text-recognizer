@@ -15,6 +15,7 @@ import nlp.words.NamedWord;
 import nlp.words.RelationWord;
 import ontology.OntologyController;
 import ontology.OntologyModelFactory;
+import ontology.OntologyUtils;
 import ontology.graph.GraphVisualizer;
 import ontology.graph.OntologyGraph;
 
@@ -238,10 +239,11 @@ public class TextView {
                     "rdf", FILE_EXTENSION);
             chooser.setFileFilter(filter);
             if (chooser.showDialog(null, "Открыть файл") == JFileChooser.APPROVE_OPTION) {
-                String path = chooser.getSelectedFile().getAbsolutePath() + "." + FILE_EXTENSION;
+                String path = chooser.getSelectedFile().getAbsolutePath();
+                path = path.endsWith("." + FILE_EXTENSION) ? path : path + "." + FILE_EXTENSION;
                 try {
                     FileWriter writer = new FileWriter(path, false);
-                    writer.write(OntologyModelFactory.InitialOntologyText());
+                    writer.write(OntologyUtils.emptyOntologyText());
                     writer.close();
                     ontologyController = new OntologyController(path);
                 } catch (Exception ex) {

@@ -63,7 +63,13 @@ public class NlpUtils {
             MorphWord morphWord = getMorphWord(morphWords, index);
             if (morphWord.getCategory() == MorphWord.Category.A_ADJECTIVE) {
                 SyntaxWord syntaxWord = getSyntaxWord(syntaxWords, index);
-                text.append(replaceAdjectiveEnd(morphWord.getInitial(), getMorphWord(morphWords, syntaxWord.getHeadIndex())));
+                SyntaxWord parent = getSyntaxWord(syntaxWords, syntaxWord.getHeadIndex());
+
+                while(parent.getLabel().equals("сочин")) {
+                    parent = getSyntaxWord(syntaxWords, parent.getHeadIndex());
+                    parent = getSyntaxWord(syntaxWords, parent.getHeadIndex());
+                }
+                text.append(replaceAdjectiveEnd(morphWord.getInitial(), getMorphWord(morphWords, parent.getIndex())));
             }
             else text.append(morphWord.getInitial());
 
@@ -106,9 +112,19 @@ public class NlpUtils {
 
     private static String replaceAdjectiveEnd(String text, MorphWord parent) {
         int last = text.length() - 2;
-        char gender = parent.getFeats().charAt(2);
         String end = text.substring(last);
+        if (end.equals("ую")) {
+            text = text.substring(0, last) + "ая";
+            end = "ая";
+        }
+        else if (end.equals("юю")) {
+            text = text.substring(0, last) + "яя";
+            end = "яя";
+        }
 
+        if (parent.getCategory() != MorphWord.Category.N_NOUN || parent.getFeats().length() < 3)
+            return  text;
+        char gender = parent.getFeats().charAt(2);
         if (gender == '-' || gender == 'm' || !(end.equals("ый") || end.equals("ий") || end.equals("ой")))
             return text;
 

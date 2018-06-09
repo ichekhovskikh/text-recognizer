@@ -105,5 +105,15 @@
             <artifactId>jung-graph-impl</artifactId>
             <version>2.1.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.daverog</groupId>
+            <artifactId>json-ld-tree</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>annotations</artifactId>
+            <version>12.0</version>
+        </dependency>
     </dependencies>
 </project>

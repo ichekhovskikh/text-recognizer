@@ -168,65 +168,43 @@ public class NlpController {
                 .get();
     }
 
-    public List<MorphWord> getMorphWords() {
-        return morphWords;
-    }
-
-    public List<SyntaxWord> getSyntaxWords() {
-        return syntaxWords;
-    }
-
-    public List<NamedWord> getNamedWords() {
-        return namedWords;
-    }
-
-    public List<RelationWord> getRelationWords() {
-        return relationWords;
-    }
-
-    public int getHeadNamedWordIndex(int namedWordIndex) {
-        return getHeadNamedWordIndex(getNamedWord(namedWordIndex));
-    }
-
-    public int getHeadRelationWordIndex(int relationWordIndex) {
-        return getHeadRelationWordIndex(getRelationWord(relationWordIndex));
-    }
-
-    public int getHeadNamedWordIndex(NamedWord namedWord) {
-        return getHeadWordIndex(syntaxWords, namedWord.getIndexes());
-    }
-
-    public int getHeadRelationWordIndex(RelationWord relationWord) {
-        return getHeadWordIndex(syntaxWords, relationWord.getIndexes());
-    }
-
     private void rebuildNlpTree() {
         for (RelationWord relationWord : relationWords) {
             NlpTreeRelation relation = new NlpTreeRelation(relationWord.getType());
             for (NamedWord namedWord : namedWords) {
-                int headNamedWordIndex = getHeadNamedWordIndex(namedWord);
+                int headNamedWordIndex = getHeadWordIndex(namedWord.getIndexes());
                 SyntaxWord syntaxWord = getSyntaxWord(headNamedWordIndex);
-
-                if (relationWord.getIndexes().contains(syntaxWord.getHeadIndex()) && syntaxWord.getLabel().equals("предик")) {
-                    NlpTreeObject object = new NlpTreeObject(
+                SyntaxWord headSyntaxWord = getSyntaxWord(syntaxWord.getHeadIndex());
+                while (headSyntaxWord.getHeadIndex() != 0) {
+                    syntaxWord = headSyntaxWord;
+                    headSyntaxWord = getSyntaxWord(headSyntaxWord.getHeadIndex());
+                }
+                if (isHead(syntaxWord, relationWord)) {
+                    NlpTreeObject head = new NlpTreeObject(
                             NlpUtils.wordMatching(namedWord.getIndexes(), syntaxWords, morphWords),
                             NlpUtils.getClassName(namedWord.getNamedTag()));
-                    nlpTreeDependency.addDependency(object, relation);
-                } else {
-                    syntaxWord = syntaxWord.getLabel().equals("предл") ?
-                            getSyntaxWord(syntaxWord.getHeadIndex()) : syntaxWord;
-                    if (!syntaxWord.getLabel().equals("предик") && relationWord.getIndexes().contains(syntaxWord.getHeadIndex())) {
-                        NlpTreeObject object = new NlpTreeObject(
-                                NlpUtils.wordMatching(namedWord.getIndexes(), syntaxWords, morphWords),
-                                NlpUtils.getClassName(namedWord.getNamedTag()));
-                        nlpTreeDependency.addDependency(relation, object);
-                    }
+                    nlpTreeDependency.addDependency(head, relation);
+                } else if (isDependent(syntaxWord, relationWord)) {
+                    NlpTreeObject dependent = new NlpTreeObject(
+                            NlpUtils.wordMatching(namedWord.getIndexes(), syntaxWords, morphWords),
+                            NlpUtils.getClassName(namedWord.getNamedTag()));
+                    nlpTreeDependency.addDependency(relation, dependent);
                 }
             }
         }
     }
 
-    private int getHeadWordIndex(List<SyntaxWord> syntaxWords, List<Integer> indexes) {
+    private boolean isHead(SyntaxWord syntaxWord, RelationWord relationWord) {
+        return relationWord.getIndexes().contains(syntaxWord.getHeadIndex())
+                && syntaxWord.getLabel().equals("предик");
+    }
+
+    private boolean isDependent(SyntaxWord syntaxWord, RelationWord relationWord) {
+        return relationWord.getIndexes().contains(syntaxWord.getHeadIndex())
+                && !syntaxWord.getLabel().equals("предик");
+    }
+
+    private int getHeadWordIndex( List<Integer> indexes) {
         for (SyntaxWord head : syntaxWords) {
             if (!indexes.contains(head.getIndex())) {
                 continue;

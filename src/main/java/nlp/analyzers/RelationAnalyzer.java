@@ -30,10 +30,6 @@ public class RelationAnalyzer implements NlpAnalyzer<RelationWord> {
         this.model = model;
     }
 
-/*    public void setModel(String modelPath) throws IOException, URISyntaxException {
-        this.model = new RelationModel(modelPath);
-    }*/
-
     public void setModel(String modelPath) throws IOException, URISyntaxException, NlpParseException {
         this.model = new RelationModel(modelPath);
         List<String> keys = model.getKeys();
@@ -58,8 +54,6 @@ public class RelationAnalyzer implements NlpAnalyzer<RelationWord> {
             RelationWord equalsWord = new RelationWord();
             for (String key : keys) {
                 for (String value : model.getValues(key)) {
-//                    List<String> valueWords = Lists.transform(
-//                            morphAnalyzer.parse(new NlpSentence(value)), elem -> elem.getInitial());
                     String[] valueWords = value.split(" ");
                     if (valueWords.length > equalsWord.getIndexes().size()) {
                         List<Integer> indexes = getIndexes(valueWords, morphWords, i);

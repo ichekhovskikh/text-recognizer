@@ -10,7 +10,7 @@ public class NlpSentence {
 
     public NlpSentence(String text) {
         this.text = text;
-        tokens = getTokens(text);
+        tokens = tokenize();
     }
 
     public String getText() {
@@ -28,7 +28,7 @@ public class NlpSentence {
         return normalizeText;
     }
 
-    private List<String> getTokens(String text) {
+    private List<String> tokenize() {
         List<String> tokens = Lists.newArrayList(getNormalizeText().split(" "));
         tokens.removeIf(elem -> elem == null || elem.equals(""));
         return tokens;

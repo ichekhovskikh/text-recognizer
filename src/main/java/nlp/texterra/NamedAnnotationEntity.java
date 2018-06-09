@@ -5,10 +5,8 @@ import nlp.NamedTag;
 
 import java.util.List;
 
-public class NamedAnnotationEntity implements AnnotationEntity {
-
+public class NamedAnnotationEntity {
     private String text = null;
-
     private NamedAnnotation annotations = null;
 
     public NamedAnnotationEntity(){}

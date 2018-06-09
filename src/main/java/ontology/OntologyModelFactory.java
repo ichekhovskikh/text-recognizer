@@ -31,15 +31,6 @@ public class OntologyModelFactory {
         return ModelFactory.createRDFSModel(DEFAULT_MODEL);
     }
 
-    public static String InitialOntologyText(){
-        return "<rdf:RDF\n" +
-                "    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" +
-                "    xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n" +
-                "    xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"\n" +
-                "    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n" +
-                "</rdf:RDF>";
-    }
-
     public static InfModel createRDFSModel(String pathOntology){
         Model model = FileManager.get().loadModel(pathOntology);
         return ModelFactory.createRDFSModel(model);
