@@ -1,21 +1,16 @@
 package view;
 
 import edu.uci.ics.jung.visualization.renderers.Renderer;
-import nlp.NlpSentence;
-import nlp.NlpText;
-import nlp.NlpUtils;
-import nlp.NlpController;
-import nlp.analyzers.NlpParseException;
-import nlp.analyzers.RelationAnalyzer;
-import nlp.analyzers.SyntaxAnalyzer;
-import nlp.analyzers.TreeTaggerMorphAnalyzer;
+import nlp.*;
+import nlp.analyzers.*;
 import nlp.tree.NlpTreeObject;
 import nlp.tree.NlpTreeRelation;
-import nlp.words.NamedWord;
+import nlp.words.MorphWord;
 import nlp.words.RelationWord;
+import nlp.words.SyntaxWord;
 import ontology.OntologyController;
-import ontology.OntologyModelFactory;
 import ontology.OntologyUtils;
+import ontology.graph.BasicGraphVisualizer;
 import ontology.graph.GraphVisualizer;
 import ontology.graph.OntologyGraph;
 
@@ -38,6 +33,7 @@ public class TextView {
     private JButton btnStart, btnAdd, btnShow;
     private JLabel label;
     private JFrame frame;
+    private JFileChooser chooser;
 
     public TextView(OntologyController ontologyController, NlpController nlpController) {
         this(ontologyController, nlpController, new Font("Custom", Font.PLAIN, 28));
@@ -51,6 +47,7 @@ public class TextView {
     }
 
     public void setFont(Font font) {
+        chooser.setFont(font);
         label.setFont(font);
         textArea.setFont(font);
         btnStart.setFont(font);
@@ -61,6 +58,10 @@ public class TextView {
     private void initComponents(Font font) {
         frame = new JFrame("Распознование текста");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -165,9 +166,9 @@ public class TextView {
     private class StartAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            NlpText text = new NlpText(textArea.getText());
+            NlpText text = new DefaultNlpText(textArea.getText());
             wordsView.clearTable();
-            nlpController.getNlpTreeDependency().clear();
+            nlpController.getNlpDependencyTree().clear();
             try {
                 for (NlpSentence sentence : text.getAllSentences()) {
                     nlpController.setSentence(sentence);
@@ -178,20 +179,20 @@ public class TextView {
                         "Не удалось обработать [" + ex.getMessage() + "]!",
                         "Ошибка", JOptionPane.WARNING_MESSAGE);
             }
-            List<NlpTreeRelation> properties = nlpController.getNlpTreeDependency().getRelations();
-            for (NlpTreeRelation property : properties) {
+            List<NlpTreeRelation> properties = nlpController.getNlpDependencyTree().getRelations();
+            properties.forEach(property -> {
                 List<NlpTreeObject> subjects = property.getHeads();
                 List<NlpTreeObject> objects = property.getDependents();
-                for (NlpTreeObject subject : subjects) {
-                    for (NlpTreeObject object : objects) {
+                subjects.forEach(subject -> {
+                    objects.forEach(object -> {
                         String subjectName = subject.getText() + " [" + NlpUtils.getLocalizeName(subject.getTag()) + "]";
                         String objectName = object.getText() + " [" + NlpUtils.getLocalizeName(object.getTag()) + "]";
                         wordsView.addTableRow(subjectName.toUpperCase(),
                                 NlpUtils.getLocalizeType(property.getTag()).toUpperCase(),
                                 objectName.toUpperCase());
-                    }
-                }
-            }
+                    });
+                });
+            });
             wordsView.setVisible(true);
             btnAdd.setEnabled(true);
         }
@@ -200,18 +201,18 @@ public class TextView {
     private class AddAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            List<NlpTreeRelation> properties = nlpController.getNlpTreeDependency().getRelations();
-            for (NlpTreeRelation property : properties) {
+            List<NlpTreeRelation> properties = nlpController.getNlpDependencyTree().getRelations();
+            properties.forEach(property -> {
                 List<NlpTreeObject> subjects = property.getHeads();
                 List<NlpTreeObject> objects = property.getDependents();
-                for (NlpTreeObject subject : subjects) {
-                    for (NlpTreeObject object : objects) {
+                subjects.forEach(subject -> {
+                    objects.forEach(object -> {
                         ontologyController.addIndividual(subject.getText(), subject.getTag());
                         ontologyController.addIndividual(object.getText(), object.getTag());
                         ontologyController.addIndividualProperty(subject.getText(), object.getText(), property.getTag());
-                    }
-                }
-            }
+                    });
+                });
+            });
             ontologyController.commit();
         }
     }
@@ -220,7 +221,7 @@ public class TextView {
         @Override
         public void actionPerformed(ActionEvent e) {
             OntologyGraph graph = ontologyController.getGraph();
-            GraphVisualizer visualizer = new GraphVisualizer(graph, new Dimension(1000, 1000));
+            GraphVisualizer visualizer = new BasicGraphVisualizer(graph, new Dimension(1000, 1000));
             visualizer.addLabels();
             visualizer.setPosition(Renderer.VertexLabel.Position.CNTR);
             visualizer.addVertexFillPaint();
@@ -231,26 +232,21 @@ public class TextView {
     private class NewOntologyAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            chooser.setAcceptAllFileFilterUsed(false);
             final String FILE_EXTENSION = "rdf";
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "rdf", FILE_EXTENSION);
-            chooser.setFileFilter(filter);
-            if (chooser.showDialog(null, "Открыть файл") == JFileChooser.APPROVE_OPTION) {
-                String path = chooser.getSelectedFile().getAbsolutePath();
-                path = path.endsWith("." + FILE_EXTENSION) ? path : path + "." + FILE_EXTENSION;
-                try {
-                    FileWriter writer = new FileWriter(path, false);
-                    writer.write(OntologyUtils.emptyOntologyText());
-                    writer.close();
-                    ontologyController = new OntologyController(path);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame,
-                            "Не удалось открыть онтологию [" + ex.getMessage() + "]!",
-                            "Ошибка", JOptionPane.WARNING_MESSAGE);
-                }
+            File file = openFile(FILE_EXTENSION, "Создать файл");
+            if (file == null)
+                return;
+            String path = file.getAbsolutePath();
+            path = path.endsWith("." + FILE_EXTENSION) ? path : path + "." + FILE_EXTENSION;
+            try {
+                FileWriter writer = new FileWriter(path, false);
+                writer.write(OntologyUtils.emptyOntologyText());
+                writer.close();
+                ontologyController.setFilePath(path);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame,
+                        "Не удалось открыть онтологию [" + ex.getMessage() + "]!",
+                        "Ошибка", JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -258,21 +254,15 @@ public class TextView {
     private class OpenOntologyAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            chooser.setAcceptAllFileFilterUsed(false);
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "rdf", "rdf");
-            chooser.setFileFilter(filter);
-            if (chooser.showDialog(null, "Открыть файл") == JFileChooser.APPROVE_OPTION) {
-                File file = chooser.getSelectedFile();
-                try {
-                    ontologyController = new OntologyController(file.getAbsolutePath());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame,
-                            "Не удалось открыть онтологию [" + ex.getMessage() + "]!",
-                            "Ошибка", JOptionPane.WARNING_MESSAGE);
-                }
+            File file = openFile("rdf", "Открыть файл");
+            if (file == null)
+                return;
+            try {
+                ontologyController.setFilePath(file.getAbsolutePath());
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame,
+                        "Не удалось открыть онтологию [" + ex.getMessage() + "]!",
+                        "Ошибка", JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -280,22 +270,16 @@ public class TextView {
     private class OpenMorphAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            chooser.setAcceptAllFileFilterUsed(false);
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "par", "par");
-            chooser.setFileFilter(filter);
-            if (chooser.showDialog(null, "Выбрать словарь") == JFileChooser.APPROVE_OPTION) {
-                File file = chooser.getSelectedFile();
-                try {
-                    TreeTaggerMorphAnalyzer morphAnalyzer = new TreeTaggerMorphAnalyzer(file.getAbsolutePath());
-                    nlpController.setMorphAnalyzer(morphAnalyzer);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame,
-                            "Не удалось выбрать морфологический словарь [" + ex.getMessage() + "]!",
-                            "Ошибка", JOptionPane.WARNING_MESSAGE);
-                }
+            File file = openFile("par", "Выбрать словарь");
+            if (file == null)
+                return;
+            try {
+                NlpAnalyzer<MorphWord> morphAnalyzer = new TreeTaggerMorphAnalyzer(file.getAbsolutePath());
+                nlpController.setMorphAnalyzer(morphAnalyzer);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame,
+                        "Не удалось выбрать морфологический словарь [" + ex.getMessage() + "]!",
+                        "Ошибка", JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -303,24 +287,18 @@ public class TextView {
     private class OpenSyntaxAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            chooser.setAcceptAllFileFilterUsed(false);
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "mco", "mco");
-            chooser.setFileFilter(filter);
-            if (chooser.showDialog(null, "Выбрать словарь") == JFileChooser.APPROVE_OPTION) {
-                File file = chooser.getSelectedFile();
-                try {
-                    SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(
-                            nlpController.getMorphAnalyzer(),
-                            file.getAbsolutePath());
-                    nlpController.setSyntaxAnalyzer(syntaxAnalyzer);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame,
-                            "Не удалось выбрать синтаксический словарь [" + ex.getMessage() + "]!",
-                            "Ошибка", JOptionPane.WARNING_MESSAGE);
-                }
+            File file = openFile("mco", "Выбрать словарь");
+            if (file == null)
+                return;
+            try {
+                NlpAnalyzer<SyntaxWord> syntaxAnalyzer = new SyntaxAnalyzer(
+                        file.getAbsolutePath(),
+                        nlpController.getMorphAnalyzer());
+                nlpController.setSyntaxAnalyzer(syntaxAnalyzer);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame,
+                        "Не удалось выбрать синтаксический словарь [" + ex.getMessage() + "]!",
+                        "Ошибка", JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -328,24 +306,26 @@ public class TextView {
     private class OpenRelationAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            chooser.setAcceptAllFileFilterUsed(false);
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "rel", "rel");
-            chooser.setFileFilter(filter);
-            if (chooser.showDialog(null, "Выбрать словарь") == JFileChooser.APPROVE_OPTION) {
-                File file = chooser.getSelectedFile();
-                try {
-                    RelationAnalyzer relationAnalyzer = new RelationAnalyzer(
-                            file.getAbsolutePath());
-                    nlpController.setRelationAnalyzer(relationAnalyzer);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame,
-                            "Не удалось выбрать словарь отношений [" + ex.getMessage() + "]!",
-                            "Ошибка", JOptionPane.WARNING_MESSAGE);
-                }
+            File file = openFile("rel", "Выбрать словарь");
+            if (file == null)
+                return;
+            try {
+                NlpAnalyzer<RelationWord> relationAnalyzer = new RelationAnalyzer(
+                        file.getAbsolutePath(), nlpController.getMorphAnalyzer());
+                nlpController.setRelationAnalyzer(relationAnalyzer);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame,
+                        "Не удалось выбрать словарь отношений [" + ex.getMessage() + "]!",
+                        "Ошибка", JOptionPane.WARNING_MESSAGE);
             }
         }
+    }
+
+    private File openFile(String extension, String buttonText) {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                extension, extension);
+        chooser.setFileFilter(filter);
+        return (chooser.showDialog(null, buttonText) == JFileChooser.APPROVE_OPTION) ?
+                chooser.getSelectedFile() : null;
     }
 }

@@ -3,7 +3,6 @@ package nlp;
 import nlp.texterra.NamedAnnotationEntity;
 import nlp.words.MorphWord;
 import nlp.words.NamedWord;
-import nlp.words.RelationWord;
 import nlp.words.SyntaxWord;
 
 import java.util.ArrayList;
@@ -49,14 +48,6 @@ public class NlpUtils {
         return namedWords;
     }
 
-    public static String getInitialNamedWord(NamedWord namedWord, List<MorphWord> morphWords) {
-        return getInitialWord(morphWords, namedWord.getIndexes());
-    }
-
-    public static String getInitialRelationWord(RelationWord relationWord, List<MorphWord> morphWords) {
-        return getInitialWord(morphWords, relationWord.getIndexes());
-    }
-
     public static String wordMatching(List<Integer> indexes, List<SyntaxWord> syntaxWords, List<MorphWord> morphWords){
         StringBuilder text = new StringBuilder();
         for (int index : indexes) {
@@ -94,20 +85,17 @@ public class NlpUtils {
         return indexes;
     }
 
-    public static String getInitialWord(List<MorphWord> morphWords, List<Integer> indexes) {
-        StringBuilder namedInitial = new StringBuilder();
-        for (int i = 0; i < indexes.size(); i++) {
-            int index = indexes.get(i);
-            MorphWord morphWord = (MorphWord) morphWords
-                    .stream()
-                    .filter(morph -> morph.getIndex() == index)
-                    .toArray()[0];
-            namedInitial.append(morphWord.getInitial());
-            if (i != indexes.size() - 1) {
-                namedInitial.append(" ");
-            }
-        }
-        return namedInitial.toString();
+    public static List<NamedWord> getOnlyGeoObjects(List<NamedWord> namedWords) {
+        return namedWords.stream().filter(namedWord -> namedWord.getNamedTag() == NamedTag.GPE_COUNTRY ||
+                namedWord.getNamedTag() == NamedTag.GPE_CITY ||
+                namedWord.getNamedTag() == NamedTag.GPE_STATE_PROVINCE ||
+                namedWord.getNamedTag() == NamedTag.GPE_OTHER ||
+                namedWord.getNamedTag() == NamedTag.LOCATION_RIVER ||
+                namedWord.getNamedTag() == NamedTag.LOCATION_LAKE_SEA_OCEAN ||
+                namedWord.getNamedTag() == NamedTag.LOCATION_REGION ||
+                namedWord.getNamedTag() == NamedTag.LOCATION_CONTINENT ||
+                namedWord.getNamedTag() == NamedTag.LOCATION_OTHER)
+                .collect(Collectors.toList());
     }
 
     private static String replaceAdjectiveEnd(String text, MorphWord parent) {
@@ -184,42 +172,7 @@ public class NlpUtils {
     }
 
     public static String getLocalizeName(NamedTag tag){
-        String name;
-        switch (tag) {
-            case GPE_COUNTRY: {
-                name = "СТРАНА";
-                break;
-            }
-            case GPE_CITY: {
-                name = "ГОРОД";
-                break;
-            }
-            case GPE_STATE_PROVINCE: {
-                name = "ГОСУДАРСТВЕННАЯ ПРОВИНЦИЯ";
-                break;
-            }
-            case LOCATION_RIVER: {
-                name = "РЕКА";
-                break;
-            }
-            case LOCATION_LAKE_SEA_OCEAN: {
-                name = "ОЗЕРО/МОРЕ/ОКЕАН";
-                break;
-            }
-            case LOCATION_REGION: {
-                name = "РЕГИОН";
-                break;
-            }
-            case LOCATION_CONTINENT: {
-                name = "КОНТИНЕНТ";
-                break;
-            }
-            default: {
-                name = "ПРОЧЕЕ";
-                break;
-            }
-        }
-        return name;
+        return getLocalizeName(getClassName(tag));
     }
 
     public static String getLocalizeName(String tag){

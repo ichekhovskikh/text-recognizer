@@ -6,7 +6,8 @@
 
     <groupId>text-recognizer</groupId>
     <artifactId>text-recognizer</artifactId>
-    <version>0.1-ALPHA</version>
+    <packaging>pom</packaging>
+    <version>1.0-BETA</version>
 
     <build>
         <plugins>
@@ -29,6 +30,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>23.0</version>
@@ -44,34 +50,20 @@
             <version>2.1.0</version>
         </dependency>
         <dependency>
-            <groupId>com.squareup.retrofit2</groupId>
-            <artifactId>converter-gson</artifactId>
-            <version>2.0.0-beta3</version>
-        </dependency>
-
-        <!--Morpho-->
-        <!--обертка mystem https://nlpub.ru/Mystem#Java-->
-        <dependency>
             <groupId>ru.stachek66.nlp</groupId>
             <artifactId>mystem-scala</artifactId>
             <version>0.1.4</version>
         </dependency>
-
-        <!--TreeTagger-->
         <dependency>
             <groupId>org.annolab.tt4j</groupId>
             <artifactId>org.annolab.tt4j</artifactId>
             <version>1.2.1</version>
         </dependency>
-
-        <!--sintax часть речи https://nlpub.ru/MaltParser-->
         <dependency>
             <groupId>org.maltparser</groupId>
             <artifactId>maltparser</artifactId>
             <version>1.9.2</version>
         </dependency>
-
-        <!--работа с онтологией-->
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>apache-jena-libs</artifactId>
@@ -88,8 +80,6 @@
             <artifactId>jena-sdb</artifactId>
             <version>3.6.0</version>
         </dependency>
-
-        <!--визуализация графа-->
         <dependency>
             <groupId>net.sf.jung</groupId>
             <artifactId>jung-algorithms</artifactId>
@@ -104,16 +94,6 @@
             <groupId>net.sf.jung</groupId>
             <artifactId>jung-graph-impl</artifactId>
             <version>2.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.daverog</groupId>
-            <artifactId>json-ld-tree</artifactId>
-            <version>1.0.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.intellij</groupId>
-            <artifactId>annotations</artifactId>
-            <version>12.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class NlpTreeDependency {
+public class NlpDependencyTreeImpl implements NlpDependencyTree {
     private List<NlpTreeRelation> relations;
     private List<NlpTreeObject> objects;
 
-    public NlpTreeDependency() {
+    public NlpDependencyTreeImpl() {
         relations = new ArrayList<>();
         objects = new ArrayList<>();
     }
 
-    public NlpTreeDependency(List<NlpTreeRelation> relations, List<NlpTreeObject> objects) {
+    public NlpDependencyTreeImpl(List<NlpTreeRelation> relations, List<NlpTreeObject> objects) {
         this.relations = relations;
         this.objects = objects;
     }

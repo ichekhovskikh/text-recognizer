@@ -1,22 +1,8 @@
 package ontology.graph;
 
-public class OntologyEdge {
-    private String text;
-
-    public OntologyEdge(String text) {
-        this.text = text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getText() {
-        return text;
-    }
-
+public interface OntologyEdge {
+    void setText(String text);
+    String getText();
     @Override
-    public String toString() {
-        return text;
-    }
+    String toString();
 }

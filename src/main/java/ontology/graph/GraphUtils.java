@@ -49,6 +49,6 @@ public class GraphUtils {
 
     public static OntologyEdge getLocalizeEdge(OntologyEdge edge) {
         String localizeText = NlpUtils.getLocalizeType(edge.getText());
-        return new OntologyEdge(localizeText);
+        return new OntologyEdgeImpl(localizeText);
     }
 }

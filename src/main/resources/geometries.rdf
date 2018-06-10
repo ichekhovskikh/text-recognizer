@@ -26,6 +26,9 @@
     <j.0:inside>
       <j.1:COUNTRY rdf:about="http://www.opengis.net/ont/sf#РОССИЯ">
         <j.0:contains>
+          <j.1:CITY rdf:about="http://www.opengis.net/ont/sf#ОМСК"/>
+        </j.0:contains>
+        <j.0:contains>
           <j.1:CITY rdf:about="http://www.opengis.net/ont/sf#САМАРА"/>
         </j.0:contains>
       </j.1:COUNTRY>

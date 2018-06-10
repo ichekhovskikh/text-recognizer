@@ -1,5 +1,7 @@
 package nlp.analyzers;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import nlp.NlpSentence;
 import nlp.words.MorphWord;
 import nlp.words.SyntaxWord;
@@ -16,17 +18,11 @@ import java.util.List;
 
 public class SyntaxAnalyzer implements NlpAnalyzer<SyntaxWord> {
     private ConcurrentMaltParserModel maltParser = null;
-    private TreeTaggerMorphAnalyzer tagger = null;
+    private NlpAnalyzer<MorphWord> tagger = null;
 
-    public SyntaxAnalyzer() throws URISyntaxException, IOException, MaltChainedException {
-        this(new TreeTaggerMorphAnalyzer(), "russian.mco");
-    }
-
-    public SyntaxAnalyzer(TreeTaggerMorphAnalyzer tagger) throws URISyntaxException, IOException, MaltChainedException {
-        this(tagger, "russian.mco");
-    }
-
-    public SyntaxAnalyzer(TreeTaggerMorphAnalyzer tagger, String pathModel) throws URISyntaxException, IOException, MaltChainedException {
+    @Inject
+    public SyntaxAnalyzer(@Named("SyntaxModelPath") String pathModel,
+                          @Named("MorphAnalyzer") NlpAnalyzer tagger) throws URISyntaxException, IOException, MaltChainedException {
         this.tagger = tagger;
         setModel(pathModel);
     }
